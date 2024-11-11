@@ -23,7 +23,7 @@
 # Compiled Static libraries
 *.lai
 *.la
-# *.a
+*.a
 *.lib
 
 # Executables
@@ -31,4 +31,7 @@
 *.out
 *.app
 
+# Specific to this project
 .vscode
+PyOpenGL*
+*.py

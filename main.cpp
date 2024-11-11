@@ -17,6 +17,8 @@
 #include "Objeto3D.h"
 #include "Ponto.h"
 
+#include <iostream>
+
 Objeto3D o;
 
 void DefineLuz()
@@ -50,9 +52,9 @@ void DefineLuz()
     // Define a reflectancia do material
     glMaterialfv(GL_FRONT, GL_SPECULAR, especularidade);
 
-    // Define a concentraÃ§Ã£oo do brilho.
+    // Define a concentração do brilho.
     // Quanto maior o valor do Segundo parametro, mais
-    // concentrado serÃ¡ o brilho. (Valores vÃ¡lidos: de 0 a 128)
+    // concentrado será o brilho. (Valores válidos: de 0 a 128)
     glMateriali(GL_FRONT, GL_SHININESS, 51);
 }
 
@@ -99,11 +101,12 @@ void DesenhaPiso()
 {
     glPushMatrix();
     glTranslated(-20, -1, -10);
-    for (size_t x = -20; x < 20; x++)
+    for (int x = -20; x < 20; x++)
     {
         glPushMatrix();
-        for (size_t z = -20; z < 20; z++)
+        for (int z = -20; z < 20; z++)
         {
+
             DesenhaLadrilho();
             glTranslated(0, 0, 1);
         }
@@ -143,13 +146,19 @@ void desenha()
     glutSwapBuffers();
 }    
 
+// to do: problema, só roda uma vez 
 void teclado(unsigned char key, int x, int y)
 {
-    o.setRotation(1, 0, 0, o.getRotationAngle() + 2);
+    switch (key)
+    {
+        case 'r':
+            o.setRotation(1, 0, 0, o.getRotationAngle() + 2);
 
-    glutPostRedisplay();
+            glutPostRedisplay();
+
+            break;
+    }    
 }
-    
 
 void init()
 {    

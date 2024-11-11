@@ -145,7 +145,7 @@ void Objeto3D::Desenha()
     
     for (std::vector<int> f : faces)
     {
-        glBegin(GL_LINE_LOOP);
+        glBegin(GL_TRIANGLE_FAN);
         for (int iv : f)
         {
             glVertex3f(vertices[iv].getX(), vertices[iv].getY(), vertices[iv].getZ());
