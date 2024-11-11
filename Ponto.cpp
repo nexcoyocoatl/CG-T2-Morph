@@ -1,12 +1,14 @@
 #include "Ponto.h"
 #include <cmath>
 
+#include <iostream>
+
 #define PI 3.14159265359
 
 Ponto::Ponto(float x, float y, float z)
     : m_x {x}, m_y {y}, m_z {z}
-{   
-};
+{
+}
 
 float Ponto::getX()
 {
@@ -26,27 +28,29 @@ void Ponto::set(float x, float y, float z)
     m_x = x;
     m_y = y;
     m_z = z;
-};
+}
 
 Ponto Ponto::__add__(float x, float y, float z)
 {
     x += m_x;
     y += m_y;
     return Ponto(x, y, 0);
-};
+}
+
 Ponto Ponto::__sub__(float x, float y, float z)
 {
     x -= m_x;
     y -= m_y;
     return Ponto(x, y, 0);
-};
+}
+
 Ponto Ponto::__mul__(int n)
 {
     int x, y {};
     x *= n;
     y *= n;
     return Ponto(x, y, 0);
-};
+}
 
 void Ponto::rotacionaX(float angulo)
 {
@@ -55,7 +59,8 @@ void Ponto::rotacionaX(float angulo)
     float yr;
     m_x = xr;
     m_y = yr;
-};
+}
+
 void Ponto::rotacionaY(float angulo)
 {
     float anguloRad = angulo * PI/180.0;
@@ -63,7 +68,8 @@ void Ponto::rotacionaY(float angulo)
     float zr = -m_x*sin(anguloRad) + m_z*cos(anguloRad);
     m_x = xr;
     m_y = zr;
-};
+}
+
 void Ponto::rotacionaZ(float angulo)
 {
     float anguloRad = angulo * PI/180.0;
@@ -71,7 +77,7 @@ void Ponto::rotacionaZ(float angulo)
     float yr = m_x*sin(anguloRad) + m_y*cos(anguloRad);
     m_x = xr;
     m_y = yr;
-};
+}
 
 /*
 # ********************************************************************** #
@@ -103,7 +109,7 @@ bool Ponto::intersec2d(Ponto k, Ponto l, Ponto m, Ponto n) // TO-DO: É estátic
     float t = ((l.getX() - k.getX()) * (m.getY() - k.getY()) - (l.getY() - k.getY()) * (m.getX() - k.getX()))/ det;
 
     return (s >= 0.0) and (s <= 1.0) and (t >= 0.0) and (t <= 1.0);
-};
+}
 
 /*
 # **********************************************************************
