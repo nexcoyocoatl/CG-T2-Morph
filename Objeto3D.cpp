@@ -19,7 +19,7 @@
 #include <iostream>
 
 Objeto3D::Objeto3D()
-    : vertices {}, faces {}, position {Ponto(0.0, 0.0, 0.0)}
+    : vertices {}, faces {}, position {Ponto(0.0f, 0.0f, 0.0f)}
 {
 }
 
@@ -94,6 +94,8 @@ void Objeto3D::LoadFile(std::string file)
         values.clear();
     }
     f.close();
+
+    CalculaCentroides();
 }
 
 void Objeto3D::DesenhaVertices()
@@ -101,8 +103,8 @@ void Objeto3D::DesenhaVertices()
     glPushMatrix();
     glTranslatef(position.getX(), position.getY(), position.getZ());
     glRotatef(rotation[3], rotation[0], rotation[1], rotation[2]);
-    glColor3f(0.1, 0.1, 0.8);
-    glPointSize(8);
+    glColor3f(0.1f, 0.1f, 0.8f);
+    glPointSize(8.0f);
 
     glBegin(GL_POINTS);
     for (Ponto v : vertices)
@@ -119,8 +121,8 @@ void Objeto3D::DesenhaWireframe()
     glPushMatrix();
     glTranslatef(position.getX(), position.getY(), position.getZ());
     glRotatef(rotation[3], rotation[0], rotation[1], rotation[2]);
-    glColor3f(0, 0, 0);
-    glLineWidth(2);
+    glColor3f(0.0f, 0.0f, 0.0f);
+    glLineWidth(2.0f);
     
     for (std::vector<int> f : faces)
     {
@@ -140,8 +142,8 @@ void Objeto3D::Desenha()
     glPushMatrix();
     glTranslatef(position.getX(), position.getY(), position.getZ());
     glRotatef(rotation[3], rotation[0], rotation[1], rotation[2]);
-    glColor3f(0.34, 0.34, 0.34);
-    glLineWidth(2);
+    glColor3f(0.34f, 0.34f, 0.34f);
+    glLineWidth(2.0f);
     
     for (std::vector<int> f : faces)
     {
@@ -156,4 +158,44 @@ void Objeto3D::Desenha()
     glPopMatrix();
 }
 
+void Objeto3D::CalculaCentroides()
+{
+    if (!centroides.empty())
+    {
+        centroides.clear();
+    }
 
+    for (std::vector<int> f : faces)
+    {
+        float n = float(f.size());
+        float x = 0.0f;
+        float y = 0.0f;
+        float z = 0.0f;
+
+        for (int iv : f)
+        {
+            x += vertices[iv].getX();
+            y += vertices[iv].getY();
+            z += vertices[iv].getZ();
+        }
+        centroides.emplace_back(Ponto(x/n, y/n, z/n));
+    }
+}
+
+void Objeto3D::DesenhaCentroides()
+{
+    glPushMatrix();
+    glTranslatef(position.getX(), position.getY(), position.getZ());
+    glRotatef(rotation[3], rotation[0], rotation[1], rotation[2]);
+    glColor3f(0.8f, 0.1f, 0.1f);
+    glPointSize(8.0f);
+
+    glBegin(GL_POINTS);
+    for (Ponto c : centroides)
+    {
+        glVertex3f(c.getX(), c.getY(), c.getZ());
+    }
+    glEnd();  
+
+    glPopMatrix();
+}

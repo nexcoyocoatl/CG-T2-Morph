@@ -16,19 +16,20 @@
 #include "Linha.h"
 #include "Objeto3D.h"
 #include "Ponto.h"
+#include "include/GL/freeglut.h"
 
 #include <iostream>
 
-Objeto3D o;
+std::vector<Objeto3D*> objetos;
 
 void DefineLuz()
 {
     // Define cores para um objeto dourado
-    float luz_ambiente[] {0.4, 0.4, 0.4};
-    float luz_difusa[] {0.7, 0.7, 0.7};
-    float luz_especular[] {0.9, 0.9, 0.9};
-    float posicao_luz[] {2.0, 3.0, 0.0};  // Posição da Luz
-    float especularidade[] {1.0, 1.0, 1.0};
+    float luz_ambiente[] {0.4f, 0.4f, 0.4f};
+    float luz_difusa[] {0.7f, 0.7f, 0.7f};
+    float luz_especular[] {0.9f, 0.9f, 0.9f};
+    float posicao_luz[] {2.0f, 3.0f, 0.0f};  // Posição da Luz
+    float especularidade[] {1.0f, 1.0f, 1.0f};
 
     // ****************  Fonte de Luz 0
 
@@ -65,7 +66,7 @@ void PosicUser()
 
     // Configura a matriz da projeção perspectiva (FOV, proporção da tela, distância do mínimo antes do clipping, distância máxima antes do clipping
     // https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/gluPerspective.xml
-    gluPerspective(60, 16/9, 0.01, 50); // Projecao perspectiva
+    gluPerspective(60.0f, 16.0/9.0f, 0.01f, 50.0f); // Projecao perspectiva
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
@@ -73,34 +74,34 @@ void PosicUser()
     // As três primeiras variáveis especificam a posição do observador nos eixos x, y e z    # As três próximas especificam o ponto de foco nos eixos x, y e z
     // As três últimas especificam o vetor up
     // https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/gluLookAt.xml
-    gluLookAt(-2, 6, -8, 0, 0, 0, 0, 1.0, 0);
+    gluLookAt(-2.0f, 6.0f, -8.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 }
 
 void DesenhaLadrilho()
 {
-    glColor3f(0.5, 0.5, 0.5); // desenha QUAD preenchido
+    glColor3f(0.5f, 0.5f, 0.5f); // desenha QUAD preenchido
     glBegin(GL_QUADS);
-    glNormal3f(0, 1, 0);
-    glVertex3f(-0.5, 0.0, -0.5);
-    glVertex3f(-0.5, 0.0, 0.5);
-    glVertex3f(0.5, 0.0, 0.5);
-    glVertex3f(0.5, 0.0, -0.5);
+    glNormal3f(0.0f, 1.0f, 0.0f);
+    glVertex3f(-0.5f, 0.0f, -0.5f);
+    glVertex3f(-0.5f, 0.0f, 0.5f);
+    glVertex3f(0.5f, 0.0f, 0.5f);
+    glVertex3f(0.5f, 0.0f, -0.5f);
     glEnd();
 
-    glColor3f(1, 1, 1); // desenha a borda da QUAD
+    glColor3f(1.0f, 1.0f, 1.0f); // desenha a borda da QUAD
     glBegin(GL_LINE_STRIP);
-    glNormal3f(0, 1, 0);
-    glVertex3f(-0.5, 0.0, -0.5);
-    glVertex3f(-0.5, 0.0, 0.5);
-    glVertex3f(0.5, 0.0, 0.5);
-    glVertex3f(0.5, 0.0, -0.5);
+    glNormal3f(0.0f, 1.0f, 0.0f);
+    glVertex3f(-0.5f, 0.0f, -0.5f);
+    glVertex3f(-0.5f, 0.0f, 0.5f);
+    glVertex3f(0.5f, 0.0f, 0.5f);
+    glVertex3f(0.5f, 0.0f, -0.5f);
     glEnd();
 }
 
 void DesenhaPiso()
 {
     glPushMatrix();
-    glTranslated(-20, -1, -10);
+    glTranslated(-20.0f, -1.0f, -10.0f);
     for (int x = -20; x < 20; x++)
     {
         glPushMatrix();
@@ -108,10 +109,10 @@ void DesenhaPiso()
         {
 
             DesenhaLadrilho();
-            glTranslated(0, 0, 1);
+            glTranslated(0.0f, 0.0f, 1.0f);
         }
         glPopMatrix();
-        glTranslated(1, 0, 0);
+        glTranslated(1.0f, 0.0f, 0.0f);
     }
     glPopMatrix();
 }
@@ -119,15 +120,15 @@ void DesenhaPiso()
 void DesenhaCubo()
 {
     glPushMatrix();
-    glColor3f(1, 0, 0);
-    glTranslated(0, 0.5, 0);
-    glutSolidCube(1);
+    glColor3f(1.0f, 0.0f, 0.0f);
+    glTranslated(0.0f, 0.5f, 0.0f);
+    glutSolidCube(1.0f);
 
-    glColor3f(0.5, 0.5, 0);
-    glTranslated(0, 0.5, 0);
-    glRotatef(90, -1, 0, 0);
-    glRotatef(45, 0, 0, 1);
-    glutSolidCone(1, 1, 4, 4);
+    glColor3f(0.5f, 0.5f, 0.0f);
+    glTranslated(0.0f, 0.5f, 0.0f);
+    glRotatef(90.0f, -1.0f, 0.0f, 0.0f);
+    glRotatef(45.0f, 0.0f, 0.0f, 1.0f);
+    glutSolidCone(1.0f, 1.0f, 4.0f, 4.0f);
     glPopMatrix();
 }
 
@@ -139,9 +140,14 @@ void desenha()
 
     DesenhaPiso();
     // DesenhaCubo();
-    o.Desenha();
-    o.DesenhaWireframe();
-    // o.DesenhaVertices();
+
+    for (Objeto3D* o : objetos)
+    {
+        // o->Desenha();
+        o->DesenhaWireframe();
+        // o->DesenhaVertices();
+        o->DesenhaCentroides();
+    }
 
     glutSwapBuffers();
 }    
@@ -152,7 +158,10 @@ void teclado(unsigned char key, int x, int y)
     switch (key)
     {
         case 'r':
-            o.setRotation(1, 0, 0, o.getRotationAngle() + 2);
+        for (Objeto3D* o : objetos)
+        {
+            o->setRotation(1.0f, 0.0f, 0.0f, o->getRotationAngle() + 2.0f);
+        }
 
             glutPostRedisplay();
 
@@ -162,16 +171,16 @@ void teclado(unsigned char key, int x, int y)
 
 void init()
 {    
-    glClearColor(0.5, 0.5, 0.9, 1.0);
-    glClearDepth(1.0);
+    glClearColor(0.5f, 0.5f, 0.9f, 1.0f);
+    glClearDepth(1.0f);
 
     glDepthFunc(GL_LESS);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-    o = Objeto3D();
-    o.LoadFile("dude.obj");
+    objetos.emplace_back(new Objeto3D());
+    objetos[0]->LoadFile("dude.obj");
 
     DefineLuz();
     PosicUser();
@@ -202,8 +211,17 @@ int main(int argc, char **argv)
     // Registra a funcao callback para tratamento das teclas ASCII
     glutKeyboardFunc(teclado);
 
+    // Permite que programa continue rodando após fechar a janela
+    // para limpar a memória alocada no heap
+    glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE,GLUT_ACTION_CONTINUE_EXECUTION);
+
     // Inicia o processamento e aguarda interacoes do usuario
     glutMainLoop();
+
+    for (Objeto3D* o : objetos)
+    {
+        delete(o);
+    }
 
     return 0;
 }

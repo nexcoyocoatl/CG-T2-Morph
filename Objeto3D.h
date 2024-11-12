@@ -11,8 +11,9 @@ class Objeto3D
 private:
     std::vector<Ponto> vertices;
     std::vector<std::vector <int>> faces;
+    std::vector<Ponto> centroides;
     Ponto position;
-    float rotation[4] {0.0, 0.0, 0.0, 0.0};
+    float rotation[4] {0.0f, 0.0f, 0.0f, 0.0f};
 
 public:
     Objeto3D();
@@ -22,6 +23,8 @@ public:
     void DesenhaVertices();
     void DesenhaWireframe();
     void Desenha();
+    void CalculaCentroides();
+    void DesenhaCentroides();
 };
 
 #endif
