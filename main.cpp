@@ -143,7 +143,7 @@ void desenha()
 
     for (Objeto3D* o : objetos)
     {
-        // o->Desenha();
+        o->Desenha();
         o->DesenhaWireframe();
         o->DesenhaVertices();
         o->DesenhaCentroides();

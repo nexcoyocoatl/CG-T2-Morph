@@ -210,16 +210,12 @@ void Objeto3D::SubdivideMesh()
 
         float n = static_cast<float>(faces[f].size());
 
-        // TO DO: Usar % talvez, ao invés de fazer duas vezes?
         for (size_t i = 0; i < faces[f].size()-1; i++)
         {
-            vertices.emplace_back(Ponto((vertices[faces[f][i]].getX() + vertices[faces[f][i+1]].getX())/2.0f,
-                                        (vertices[faces[f][i]].getY() + vertices[faces[f][i+1]].getY())/2.0f,
-                                        (vertices[faces[f][i]].getZ() + vertices[faces[f][i+1]].getZ())/2.0f));
+            vertices.emplace_back(Ponto((vertices[faces[f][i]].getX() + vertices[faces[f][(i+1) % faces[f].size()]].getX())/2.0f, // (% faces[f].size()) volta a zero se passa do número máximo do vetor
+                                        (vertices[faces[f][i]].getY() + vertices[faces[f][(i+1) % faces[f].size()]].getY())/2.0f,
+                                        (vertices[faces[f][i]].getZ() + vertices[faces[f][(i+1) % faces[f].size()]].getZ())/2.0f));
         }
-        vertices.emplace_back(Ponto((vertices[faces[f][faces[f].size()-1]].getX() + vertices[faces[f][0]].getX())/2.0f,
-                                        (vertices[faces[f][faces[f].size()-1]].getY() + vertices[faces[f][0]].getY())/2.0f,
-                                        (vertices[faces[f][faces[f].size()-1]].getZ() + vertices[faces[f][0]].getZ())/2.0f));
 
     //     vertices.push_back(centroides[f]); // Adiciona centroide aos vertices
 
