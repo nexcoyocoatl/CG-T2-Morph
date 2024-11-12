@@ -145,7 +145,7 @@ void desenha()
     {
         // o->Desenha();
         o->DesenhaWireframe();
-        // o->DesenhaVertices();
+        o->DesenhaVertices();
         o->DesenhaCentroides();
     }
 

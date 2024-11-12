@@ -96,6 +96,8 @@ void Objeto3D::LoadFile(std::string file)
     f.close();
 
     CalculaCentroides();
+
+    SubdivideMesh();
 }
 
 void Objeto3D::DesenhaVertices()
@@ -160,14 +162,9 @@ void Objeto3D::Desenha()
 
 void Objeto3D::CalculaCentroides()
 {
-    if (!centroides.empty())
-    {
-        centroides.clear();
-    }
-
     for (std::vector<int> f : faces)
     {
-        float n = float(f.size());
+        float n = static_cast<float>(f.size());
         float x = 0.0f;
         float y = 0.0f;
         float z = 0.0f;
@@ -198,4 +195,48 @@ void Objeto3D::DesenhaCentroides()
     glEnd();  
 
     glPopMatrix();
+}
+
+void Objeto3D::SubdivideMesh()
+{
+    // std::vector<std::vector <int>> new_faces;
+
+    // std::vector<int[3]> subdivided_faces; // quads, mas um deles sempre é o centróide
+
+    // for (std::vector<int> f : faces)
+    for (size_t f = 0; f < faces.size(); f++)
+    {
+        // subdivided_faces.clear();
+
+        float n = static_cast<float>(faces[f].size());
+
+        // TO DO: Usar % talvez, ao invés de fazer duas vezes?
+        for (size_t i = 0; i < faces[f].size()-1; i++)
+        {
+            vertices.emplace_back(Ponto((vertices[faces[f][i]].getX() + vertices[faces[f][i+1]].getX())/2.0f,
+                                        (vertices[faces[f][i]].getY() + vertices[faces[f][i+1]].getY())/2.0f,
+                                        (vertices[faces[f][i]].getZ() + vertices[faces[f][i+1]].getZ())/2.0f));
+        }
+        vertices.emplace_back(Ponto((vertices[faces[f][faces[f].size()-1]].getX() + vertices[faces[f][0]].getX())/2.0f,
+                                        (vertices[faces[f][faces[f].size()-1]].getY() + vertices[faces[f][0]].getY())/2.0f,
+                                        (vertices[faces[f][faces[f].size()-1]].getZ() + vertices[faces[f][0]].getZ())/2.0f));
+
+    //     vertices.push_back(centroides[f]); // Adiciona centroide aos vertices
+
+    //     // Cria n novos quads
+    //     for (size_t i = 0; i < faces[f].size(); i++)
+    //     {
+    //         new_faces.push_back(std::vector<int>());
+
+    //         new_faces.back().push_back(static_cast<float>(vertices.size()-1)); // adiciona número do vértice do centroide como primeiro da face (último do vetor)
+    //         new_faces.back().push_back(static_cast<int>((vertices.size()-1)-i-1)); // último vérice a ser adicionado antes do centróide menos offset de i menos centroide
+    //         new_faces.back().push_back(static_cast<int>(faces[f][i])); // vertice que já existia
+    //         new_faces.back().push_back(static_cast<int>((vertices.size()-1)-n-1-i));
+    //     }
+    }
+
+    // faces.clear();
+    // faces = new_faces; // TO DO: ARRUMAR (MUITO INEFICIENTE)
+
+    // CalculaCentroides();
 }

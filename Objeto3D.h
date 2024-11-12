@@ -25,6 +25,7 @@ public:
     void Desenha();
     void CalculaCentroides();
     void DesenhaCentroides();
+    void SubdivideMesh();
 };
 
 #endif
