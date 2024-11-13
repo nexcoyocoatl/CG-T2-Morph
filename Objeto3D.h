@@ -10,8 +10,13 @@ class Objeto3D
 {
 private:
     std::vector<Ponto> vertices;
-    std::vector<std::vector <int>> faces;
+    std::vector<std::vector <size_t>> faces;
     std::vector<Ponto> centroides;
+
+    std::vector<size_t> quads;
+    std::vector<size_t> tris;
+    std::vector<size_t> ngons;
+
     Ponto position;
     float rotation[4] {0.0f, 0.0f, 0.0f, 0.0f};
 
@@ -23,9 +28,15 @@ public:
     void DesenhaVertices();
     void DesenhaWireframe();
     void Desenha();
-    void CalculaCentroides();
+
+    Ponto CalculaCentroide(size_t faceIndex);
+    void RecalculaCentroides();
     void DesenhaCentroides();
+
     void SubdivideMesh();
+    void TriangulaQuad(size_t faceIndex);
+
+    void teste();
 };
 
 #endif

@@ -184,6 +184,19 @@ void init()
 
     DefineLuz();
     PosicUser();
+
+    // teste (por alguma razão escurece o cenário se faz mais de 2 e dá um problema de memória ao finalizar o programa)
+    // problema é acima de 57 final
+    for (size_t i = 0; i < 71; i++)
+    {
+        objetos[0]->TriangulaQuad(i);
+    }
+
+    objetos[0]->teste();
+}
+
+void animate()
+{
 }
 
 int main(int argc, char **argv)
@@ -208,6 +221,8 @@ int main(int argc, char **argv)
     // Registra a funcao callback de redesenho da janela de visualizacao
     glutDisplayFunc(desenha);
 
+    glutIdleFunc(animate);
+
     // Registra a funcao callback para tratamento das teclas ASCII
     glutKeyboardFunc(teclado);
 
@@ -218,10 +233,14 @@ int main(int argc, char **argv)
     // Inicia o processamento e aguarda interacoes do usuario
     glutMainLoop();
 
-    for (Objeto3D* o : objetos)
+    if (!objetos.empty())
     {
-        delete(o);
-    }
+        for (Objeto3D* o : objetos)
+        {
+            std::cout << "teste\n";
+            delete(o);
+        }
+    }    
 
     return 0;
 }

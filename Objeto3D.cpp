@@ -14,6 +14,7 @@
 #include "Objeto3D.h"
 
 #include <fstream>
+#include <algorithm>
 
 // teste
 #include <iostream>
@@ -54,7 +55,7 @@ void Objeto3D::LoadFile(std::string file)
         std::vector<std::string> values;
         std::string temp {};
         
-        for (size_t i = 0; i < ((int)line.size()); i++)
+        for (size_t i = 0; i < line.size(); i++)
         {
             if (line[i] == ' ' || line[i] == '\n')
             {
@@ -81,13 +82,27 @@ void Objeto3D::LoadFile(std::string file)
         if (line[0] == 'f')
         {
             // item é uma face, os outros elementos da linha são dados sobre os vértices dela
-            faces.push_back(std::vector<int>()); // inicializa um novo vector de inteiros vazio
+            faces.push_back(std::vector<size_t>()); // inicializa um novo vector de size_t vazio
 
             for (size_t i = 1; i < values.size(); i++)
             {
                 faces.back().push_back(std::stoi(values[i].substr(0, values[i].find('/', 0))) - 1); // primeiro elemento é índice do vértice da face
-                // ignoramos textura e normal
-            }              
+            }
+
+            centroides.push_back(CalculaCentroide(faces.size()-1));
+
+            if (values.size() == 4)
+            {
+                tris.push_back(faces.size()-1);
+            }
+            else if (values.size() == 5)
+            {
+                quads.push_back(faces.size()-1);
+            }
+            else
+            {
+                ngons.push_back(faces.size()-1);
+            }
         }   
         // ignoramos outros tipos de items, no exercício não é necessário e vai só complicar mais
 
@@ -95,7 +110,7 @@ void Objeto3D::LoadFile(std::string file)
     }
     f.close();
 
-    CalculaCentroides();
+    std::cout << "Tris: " << tris.size() << " Quads: " << quads.size() << " Ngons: " << ngons.size() << "\n";
 
     SubdivideMesh();
 }
@@ -126,10 +141,10 @@ void Objeto3D::DesenhaWireframe()
     glColor3f(0.0f, 0.0f, 0.0f);
     glLineWidth(2.0f);
     
-    for (std::vector<int> f : faces)
+    for (std::vector<size_t> f : faces)
     {
         glBegin(GL_LINE_LOOP);
-        for (int iv : f)
+        for (size_t iv : f)
         {
             glVertex3f(vertices[iv].getX(), vertices[iv].getY(), vertices[iv].getZ());
         }
@@ -147,10 +162,10 @@ void Objeto3D::Desenha()
     glColor3f(0.34f, 0.34f, 0.34f);
     glLineWidth(2.0f);
     
-    for (std::vector<int> f : faces)
+    for (std::vector<size_t> f : faces)
     {
         glBegin(GL_TRIANGLE_FAN);
-        for (int iv : f)
+        for (size_t iv : f)
         {
             glVertex3f(vertices[iv].getX(), vertices[iv].getY(), vertices[iv].getZ());
         }            
@@ -160,22 +175,34 @@ void Objeto3D::Desenha()
     glPopMatrix();
 }
 
-void Objeto3D::CalculaCentroides()
+Ponto Objeto3D::CalculaCentroide(size_t faceIndex)
 {
-    for (std::vector<int> f : faces)
-    {
-        float n = static_cast<float>(f.size());
-        float x = 0.0f;
-        float y = 0.0f;
-        float z = 0.0f;
+    float n = static_cast<float>(faces[faceIndex].size());
+    float x = 0.0f;
+    float y = 0.0f;
+    float z = 0.0f;
 
-        for (int iv : f)
-        {
-            x += vertices[iv].getX();
-            y += vertices[iv].getY();
-            z += vertices[iv].getZ();
-        }
-        centroides.emplace_back(Ponto(x/n, y/n, z/n));
+    for (size_t iv : faces[faceIndex])
+    {
+        x += vertices[iv].getX();
+        y += vertices[iv].getY();
+        z += vertices[iv].getZ();
+    }
+    return Ponto(x/n, y/n, z/n);
+}
+
+void Objeto3D::RecalculaCentroides()
+{
+    if (!centroides.empty())
+    {
+        centroides.clear();
+    }
+
+    centroides.reserve(faces.size());
+
+    for (size_t i = 0; i < faces.size(); i++)
+    {
+        centroides[i] = CalculaCentroide(i);
     }
 }
 
@@ -199,11 +226,11 @@ void Objeto3D::DesenhaCentroides()
 
 void Objeto3D::SubdivideMesh()
 {
-    // std::vector<std::vector <int>> new_faces;
+    // std::vector<std::vector <size_t>> new_faces;
 
-    // std::vector<int[3]> subdivided_faces; // quads, mas um deles sempre é o centróide
+    // std::vector<size_t[3]> subdivided_faces; // quads, mas um deles sempre é o centróide
 
-    // for (std::vector<int> f : faces)
+    // for (std::vector<size_t> f : faces)
     for (size_t f = 0; f < faces.size(); f++)
     {
         // subdivided_faces.clear();
@@ -222,12 +249,12 @@ void Objeto3D::SubdivideMesh()
     //     // Cria n novos quads
     //     for (size_t i = 0; i < faces[f].size(); i++)
     //     {
-    //         new_faces.push_back(std::vector<int>());
+    //         new_faces.push_back(std::vector<size_t>());
 
     //         new_faces.back().push_back(static_cast<float>(vertices.size()-1)); // adiciona número do vértice do centroide como primeiro da face (último do vetor)
-    //         new_faces.back().push_back(static_cast<int>((vertices.size()-1)-i-1)); // último vérice a ser adicionado antes do centróide menos offset de i menos centroide
-    //         new_faces.back().push_back(static_cast<int>(faces[f][i])); // vertice que já existia
-    //         new_faces.back().push_back(static_cast<int>((vertices.size()-1)-n-1-i));
+    //         new_faces.back().push_back(static_cast<size_t>((vertices.size()-1)-i-1)); // último vérice a ser adicionado antes do centróide menos offset de i menos centroide
+    //         new_faces.back().push_back(static_cast<size_t>(faces[f][i])); // vertice que já existia
+    //         new_faces.back().push_back(static_cast<size_t>((vertices.size()-1)-n-1-i));
     //     }
     }
 
@@ -235,4 +262,34 @@ void Objeto3D::SubdivideMesh()
     // faces = new_faces; // TO DO: ARRUMAR (MUITO INEFICIENTE)
 
     // CalculaCentroides();
+}
+
+void Objeto3D::TriangulaQuad(size_t faceIndex)
+{
+    faces[faceIndex].pop_back(); // Retira um dos vértices, formando um tri no lugar de um quad
+    centroides[faceIndex] = CalculaCentroide(faceIndex); // Recalcula centróide da face que agora é um tri
+
+    faces.push_back(std::vector<size_t>());
+    faces.back().push_back(faces[faceIndex][2]);
+    faces.back().push_back(faces[faceIndex][3]);
+    faces.back().push_back(faces[faceIndex][0]);
+    
+    // // TO DO: problema
+    tris.push_back(faceIndex);
+    tris.push_back(faces.size()-1);
+    centroides.push_back(CalculaCentroide(faces.size()-1)); // Calcula centroide do novo tri
+    
+    quads.erase(std::remove(quads.begin(), quads.end(), faceIndex), quads.end()); // Apaga face do vetor quads (precisa ser assim porque usa iterator)
+}
+
+void Objeto3D::teste()
+{
+    std::cout << "Tris: " << tris.size() << " Quads: " << quads.size() << " Ngons: " << ngons.size() << "\n";
+    std::cout << "Faces size: " << faces.size() << " Centroides: " << centroides.size() << "\n";
+
+    for (size_t i = 0; i < tris.size(); i++)
+    {
+        std::cout << tris[i] << ", ";
+    }
+    std::cout << "\n";    
 }
