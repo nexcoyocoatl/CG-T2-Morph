@@ -115,7 +115,7 @@ void Objeto3D::LoadFile(std::string file)
     // testes
     // TriangulaMesh();
     // TriangulaMesh();
-    // SubdivideMesh(9);
+    // SubdivideMesh(1);
     // TriangulaMesh();
     // SubdivideMesh(2);
 }
@@ -231,6 +231,17 @@ void Objeto3D::DesenhaCentroides()
     glPopMatrix();
 }
 
+void SimplifyGeometry()
+{
+    
+}
+
+// WIP Divide face em 2
+void SubdivideFaceEm2(size_t faceIndex)
+{
+
+}
+
 // Subdivide uma face da mesh (acredito ser genérico)
 void Objeto3D::SubdivideFace(size_t faceIndex)
 {
@@ -287,7 +298,7 @@ void Objeto3D::SubdivideMesh(size_t n_times)
     }
 }
 
-// TO DO: Talvez fazer genérico pra qualquer tipo de polígono?
+// WIP: Talvez fazer genérico pra qualquer tipo de polígono?
 void Objeto3D::TriangulaQuad(size_t faceIndex)
 {
     // Ignora se não é quad
@@ -301,7 +312,6 @@ void Objeto3D::TriangulaQuad(size_t faceIndex)
         faces.back().push_back(faces[faceIndex][3]);
         faces.back().push_back(faces[faceIndex][0]);
         
-        // // TO DO: problema
         tris.push_back(faceIndex);
         tris.push_back(faces.size()-1);
         centroides.push_back(CalculaCentroide(faces.size()-1)); // Calcula centroide do novo tri
@@ -319,6 +329,12 @@ void Objeto3D::TriangulaMesh()
     {
         TriangulaQuad(f);
     }
+}
+
+// Subdivide até chegar exatamente no número de faces determinado
+void SubdivideUntil(size_t num_faces)
+{
+
 }
 
 void Objeto3D::teste()
