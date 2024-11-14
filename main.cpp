@@ -145,8 +145,8 @@ void desenha()
     {
         o->Desenha();
         o->DesenhaWireframe();
-        o->DesenhaVertices();
-        o->DesenhaCentroides();
+        // o->DesenhaVertices();
+        // o->DesenhaCentroides();
     }
 
     glutSwapBuffers();
@@ -163,9 +163,9 @@ void teclado(unsigned char key, int x, int y)
             o->setRotation(1.0f, 0.0f, 0.0f, o->getRotationAngle() + 2.0f);
         }
 
-            glutPostRedisplay();
+        glutPostRedisplay();
 
-            break;
+        break;
     }    
 }
 
@@ -185,13 +185,7 @@ void init()
     DefineLuz();
     PosicUser();
 
-    // teste (por alguma razão escurece o cenário se faz mais de 2 e dá um problema de memória ao finalizar o programa)
-    // problema é acima de 57 final
-    for (size_t i = 0; i < 71; i++)
-    {
-        objetos[0]->TriangulaQuad(i);
-    }
-
+    // testes
     objetos[0]->teste();
 }
 

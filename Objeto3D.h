@@ -33,8 +33,10 @@ public:
     void RecalculaCentroides();
     void DesenhaCentroides();
 
-    void SubdivideMesh();
+    void SubdivideFace(size_t faceIndex);
+    void SubdivideMesh(size_t n_times);
     void TriangulaQuad(size_t faceIndex);
+    void TriangulaMesh();
 
     void teste();
 };
