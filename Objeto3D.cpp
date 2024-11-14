@@ -89,19 +89,19 @@ void Objeto3D::LoadFile(std::string file)
                 faces.back().push_back(std::stoi(values[i].substr(0, values[i].find('/', 0))) - 1); // primeiro elemento é índice do vértice da face
             }
 
-            centroides.push_back(CalculaCentroide(faces.size()-1));
+            centroides.push_back(CalculaCentroide(faces.size() - 1));
 
             if (values.size() == 4)
             {
-                tris.push_back(faces.size()-1);
+                tris.push_back(faces.size() - 1);
             }
             else if (values.size() == 5)
             {
-                quads.push_back(faces.size()-1);
+                quads.push_back(faces.size() - 1);
             }
             else
             {
-                ngons.push_back(faces.size()-1);
+                ngons.push_back(faces.size() - 1);
             }
         }   
         // ignoramos outros tipos de items, no exercício não é necessário e vai só complicar mais
@@ -117,7 +117,7 @@ void Objeto3D::LoadFile(std::string file)
     // TriangulaMesh();
     // SubdivideMesh(1);
     // TriangulaMesh();
-    // SubdivideMesh(2);
+    // SubdivideMesh(8);
 }
 
 void Objeto3D::DesenhaVertices()
@@ -233,7 +233,7 @@ void Objeto3D::DesenhaCentroides()
 
 void SimplifyGeometry()
 {
-    
+
 }
 
 // WIP Divide face em 2
@@ -259,26 +259,27 @@ void Objeto3D::SubdivideFace(size_t faceIndex)
     // Cria num_vertices-1 (1 até num_vertices) novos quads (porque o inicial será modificada depois)
     for (size_t i = 1; i < num_vertices; i++)
     {
+        // WIP: Inserir próxima a original (com .insert()?)
         faces.push_back(std::vector<size_t>()); // Adiciona uma nova face
 
         faces.back().push_back((faces[faceIndex][i])); // Adiciona o primeiro vértice, de 1 até num_vertices
-        faces.back().push_back((vertices.size()-(num_vertices+1-i))); // Adiciona o vértice anterior ao vértice i da face
+        faces.back().push_back((vertices.size()-(num_vertices + 1 - i))); // Adiciona o vértice anterior ao vértice i da face
         faces.back().push_back((vertices.size()-1)); // Centróide
-        faces.back().push_back((vertices.size()-(num_vertices+2-i))); // Adiciona o vértice posterior ao vértice i da face
+        faces.back().push_back((vertices.size()-(num_vertices + 2 - i))); // Adiciona o vértice posterior ao vértice i da face
 
         centroides.push_back(CalculaCentroide(faces.size()-1)); // Calcula centroide da nova face
     }
 
     // Modifica face existente
-    faces[faceIndex][1] = vertices.size()-(num_vertices+1); // Index do primeiro vértice criado na subdivisão
-    faces[faceIndex][2] = vertices.size()-1; // Index do centróide
+    faces[faceIndex][1] = (vertices.size() - (num_vertices + 1)); // Index do primeiro vértice criado na subdivisão
+    faces[faceIndex][2] = (vertices.size() - 1); // Index do centróide
     if (faces[faceIndex].size() < 4) // Se é um triângulo é necessário adicionar ao vetor, ao invés de atribuir um valor a um elemento existente
     {
-        faces[faceIndex].push_back((vertices.size()-2)); // Index do último vértice criado na subdivisão (adicionado antes do centróide)
+        faces[faceIndex].push_back((vertices.size() - 2)); // Index do último vértice criado na subdivisão (adicionado antes do centróide)
     }
     else
     {
-        faces[faceIndex][3] = vertices.size()-2; // Index do último vértice criado na subdivisão (adicionado antes do centróide)
+        faces[faceIndex][3] = (vertices.size() - 2); // Index do último vértice criado na subdivisão (adicionado antes do centróide)
     }
 
     centroides[faceIndex] = CalculaCentroide(faceIndex);
@@ -313,10 +314,10 @@ void Objeto3D::TriangulaQuad(size_t faceIndex)
         faces.back().push_back(faces[faceIndex][0]);
         
         tris.push_back(faceIndex);
-        tris.push_back(faces.size()-1);
-        centroides.push_back(CalculaCentroide(faces.size()-1)); // Calcula centroide do novo tri
+        tris.push_back(faces.size() - 1);
+        centroides.push_back(CalculaCentroide(faces.size() - 1)); // Calcula centroide do novo tri
         
-        quads.erase(std::remove(quads.begin(), quads.end(), faceIndex), quads.end()); // Apaga face do vetor quads (precisa ser assim porque usa iterator)
+        quads.erase(std::remove(quads.begin(), quads.end(), faceIndex), quads.end()); // Apaga face do vetor de quads (precisa ser assim porque usa iterator)
     }
 }
 
