@@ -234,7 +234,6 @@ int main(int argc, char **argv)
     {
         for (Objeto3D* o : objetos)
         {
-            std::cout << "teste\n";
             delete(o);
         }
     }    

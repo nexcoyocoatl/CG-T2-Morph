@@ -335,7 +335,13 @@ void Objeto3D::TriangulaFace(size_t faceIndex)
     // Se é triângulo, ou até linha ou ponto, já retorna
     if (num_vertices <= 3)
     {
-        printf("é triangulo\n");
+        return;
+    }
+
+    // Não parece estar funcionando direito
+    if (num_vertices == 4)
+    {
+        TriangulaQuad(faceIndex);
         return;
     }
 
@@ -345,6 +351,7 @@ void Objeto3D::TriangulaFace(size_t faceIndex)
     // Cria as "orelhas" a partir da face original
     for (size_t i = 0; i < num_vertices - 1; i += 2)
     {
+        
         centerFace.push_back(faces[faceIndex][i]);
 
         faces.push_back(std::vector<size_t>(3));
@@ -357,19 +364,18 @@ void Objeto3D::TriangulaFace(size_t faceIndex)
         centroides.push_back(CalculaCentroide(faces.size() - 1));
     }
 
-    // Adiciona os vértices que faltam a face original
+    // Adiciona os vértices que faltam a face original    
     centerFace.push_back(faces[faceIndex][num_vertices - 1]);
     if (num_vertices % 2 != 0)
     {
         centerFace.push_back(faces[faceIndex][num_vertices - 2]);
     }
-
+    
     // Move os elementos pra face original
     faces[faceIndex].clear();
     std::move(centerFace.begin(), centerFace.begin() + centerFace.size()-1, std::back_inserter(faces[faceIndex]));
     centerFace.clear();
 
-    // WIP (PROBLEMA AQUI, NÃO CALCULA QUANDO ERA QUAD)
     // Recalcula centróide da face original modificada
     centroides[faceIndex] = CalculaCentroide(faceIndex); // Recalcula centróide da face que agora é central às "orelhas"
 
@@ -380,19 +386,10 @@ void Objeto3D::TriangulaFace(size_t faceIndex)
     }
     else
     {
-        // Se não, não há mais recursão, a face é adicionada aos triângulos e removida de sua categoria original
-        if (num_vertices == 4)
-        {
-            quads.erase(std::remove(quads.begin(), quads.end(), faceIndex), quads.end());
-        }
-        else
-        {
-            ngons.erase(std::remove(ngons.begin(), ngons.end(), faceIndex), ngons.end());
-        }
-
+        ngons.erase(std::remove(ngons.begin(), ngons.end(), faceIndex), ngons.end());
         tris.push_back(faceIndex);
     }
-
+    
     // Lógica antiga (talvez possa ser reutilizada)
     // printf("numero de vertices %lu\n", num_vertices);
     // for (size_t i = 0; i < num_vertices - 1; i++)
