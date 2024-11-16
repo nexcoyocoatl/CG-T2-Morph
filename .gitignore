@@ -5,7 +5,6 @@
 *.slo
 *.lo
 *.o
-*.obj
 
 # Precompiled Headers
 *.gch
@@ -36,3 +35,4 @@
 PyOpenGL*
 *.py
 T2
+*.mtl

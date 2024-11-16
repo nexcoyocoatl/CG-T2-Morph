@@ -114,10 +114,15 @@ void Objeto3D::LoadFile(std::string file)
 
     // testes
     // TriangulaMesh();
-    // TriangulaMesh();
+    TriangulaMesh();
     // SubdivideMesh(1);
     // TriangulaMesh();
     // SubdivideMesh(8);
+
+    // Para teste dos planos
+    // TriangulaFace(0);
+    // TriangulaFace(1);
+    // TriangulaFace(2);
 }
 
 void Objeto3D::DesenhaVertices()
@@ -303,22 +308,118 @@ void Objeto3D::SubdivideMesh(size_t n_times)
 void Objeto3D::TriangulaQuad(size_t faceIndex)
 {
     // Ignora se não é quad
-    if (faces[faceIndex].size() == 4)
+    if (faces[faceIndex].size() != 4)
     {
-        faces[faceIndex].pop_back(); // Retira um dos vértices, formando um tri no lugar de um quad
-        centroides[faceIndex] = CalculaCentroide(faceIndex); // Recalcula centróide da face que agora é um tri
-
-        faces.push_back(std::vector<size_t>());
-        faces.back().push_back(faces[faceIndex][2]);
-        faces.back().push_back(faces[faceIndex][3]);
-        faces.back().push_back(faces[faceIndex][0]);
-        
-        tris.push_back(faceIndex);
-        tris.push_back(faces.size() - 1);
-        centroides.push_back(CalculaCentroide(faces.size() - 1)); // Calcula centroide do novo tri
-        
-        quads.erase(std::remove(quads.begin(), quads.end(), faceIndex), quads.end()); // Apaga face do vetor de quads (precisa ser assim porque usa iterator)
+        return;
     }
+    
+    faces[faceIndex].pop_back(); // Retira um dos vértices, formando um tri no lugar de um quad
+    centroides[faceIndex] = CalculaCentroide(faceIndex); // Recalcula centróide da face que agora é um tri
+
+    faces.push_back(std::vector<size_t>(3));
+    faces.back()[0] = faces[faceIndex][2];
+    faces.back()[1] = faces[faceIndex][3];
+    faces.back()[2] = faces[faceIndex][0];
+    
+    tris.push_back(faceIndex);
+    tris.push_back(faces.size() - 1);
+    centroides.push_back(CalculaCentroide(faces.size() - 1)); // Calcula centroide do novo tri
+    
+    quads.erase(std::remove(quads.begin(), quads.end(), faceIndex), quads.end()); // Apaga face do vetor de quads (precisa ser assim porque usa iterator)
+}
+
+void Objeto3D::TriangulaFace(size_t faceIndex)
+{
+    size_t num_vertices = faces[faceIndex].size();
+
+    // Se é triângulo, ou até linha ou ponto, já retorna
+    if (num_vertices <= 3)
+    {
+        printf("é triangulo\n");
+        return;
+    }
+
+    // Cria um novo vetor para modificar a face original (ineficiente, mas funciona relativamente bem)
+    std::vector<size_t> centerFace;
+
+    // Cria as "orelhas" a partir da face original
+    for (size_t i = 0; i < num_vertices - 1; i += 2)
+    {
+        centerFace.push_back(faces[faceIndex][i]);
+
+        faces.push_back(std::vector<size_t>(3));
+        faces.back()[0] = faces[faceIndex][i];
+        faces.back()[1] = faces[faceIndex][i + 1];
+        faces.back()[2] = faces[faceIndex][(i + 2) % num_vertices];
+        tris.push_back(faces.size() - 1);
+
+        // Calcula o centróide do triângulo
+        centroides.push_back(CalculaCentroide(faces.size() - 1));
+    }
+
+    // Adiciona os vértices que faltam a face original
+    centerFace.push_back(faces[faceIndex][num_vertices - 1]);
+    if (num_vertices % 2 != 0)
+    {
+        centerFace.push_back(faces[faceIndex][num_vertices - 2]);
+    }
+
+    // Move os elementos pra face original
+    faces[faceIndex].clear();
+    std::move(centerFace.begin(), centerFace.begin() + centerFace.size()-1, std::back_inserter(faces[faceIndex]));
+    centerFace.clear();
+
+    // WIP (PROBLEMA AQUI, NÃO CALCULA QUANDO ERA QUAD)
+    // Recalcula centróide da face original modificada
+    centroides[faceIndex] = CalculaCentroide(faceIndex); // Recalcula centróide da face que agora é central às "orelhas"
+
+    // Faz recursivamente até que só existam triângulos
+    if (faces[faceIndex].size() > 3)
+    {
+        TriangulaFace(faceIndex);
+    }
+    else
+    {
+        // Se não, não há mais recursão, a face é adicionada aos triângulos e removida de sua categoria original
+        if (num_vertices == 4)
+        {
+            quads.erase(std::remove(quads.begin(), quads.end(), faceIndex), quads.end());
+        }
+        else
+        {
+            ngons.erase(std::remove(ngons.begin(), ngons.end(), faceIndex), ngons.end());
+        }
+
+        tris.push_back(faceIndex);
+    }
+
+    // Lógica antiga (talvez possa ser reutilizada)
+    // printf("numero de vertices %lu\n", num_vertices);
+    // for (size_t i = 0; i < num_vertices - 1; i++)
+    // {
+    //     if (i % 2 != 0)
+    //     {
+    //         if (i == 3)
+    //         {
+    //             continue;
+    //         }
+    //         faces[faceIndex].erase(std::remove(std::begin(faces[faceIndex]), faces[faceIndex].end(), i), faces[faceIndex].end());
+    //         // centerFace.push_back(faces[faceIndex][i]);
+    //     }
+    //     else
+    //     {
+    //         printf("teste i = %lu\n", i);
+    //         printf("vertices: [%d] = %d, [%d] = %d, [%d] = %d\n", i, faces[faceIndex][i], i + 1, faces[faceIndex][i + 1], (i + 2) % num_vertices, faces[faceIndex][(i + 2) % num_vertices]);
+
+    //         faces.push_back(std::vector<size_t>(3));
+    //         faces.back()[0] = faces[faceIndex][i];
+    //         faces.back()[1] = faces[faceIndex][i + 1];
+    //         faces.back()[2] = faces[faceIndex][(i + 2) % num_vertices];
+    //         tris.push_back(faces.size() - 1);
+
+    //         centroides.push_back(CalculaCentroide(faces.size() - 1));
+    //     }
+    // }
 }
 
 // Triangula todos quads da mesh
@@ -328,7 +429,8 @@ void Objeto3D::TriangulaMesh()
     
     for (size_t f = 0; f < num_faces; f++)
     {
-        TriangulaQuad(f);
+        // TriangulaQuad(f);
+        TriangulaFace(f);
     }
 }
 

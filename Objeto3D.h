@@ -39,6 +39,7 @@ public:
     void SubdivideFace(size_t faceIndex);
     void SubdivideMesh(size_t n_times);
     void TriangulaQuad(size_t faceIndex);
+    void TriangulaFace(size_t faceIndex);
     void TriangulaMesh();
     void SubdivideUntil(size_t num_faces);
 

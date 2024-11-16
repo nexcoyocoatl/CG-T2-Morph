@@ -145,8 +145,8 @@ void desenha()
     {
         o->Desenha();
         o->DesenhaWireframe();
-        // o->DesenhaVertices();
-        // o->DesenhaCentroides();
+        o->DesenhaVertices();
+        o->DesenhaCentroides();
     }
 
     glutSwapBuffers();
@@ -177,10 +177,13 @@ void init()
     glDepthFunc(GL_LESS);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glPolygonMode(GL_FRONT, GL_FILL);
 
     objetos.emplace_back(new Objeto3D());
-    objetos[0]->LoadFile("dude.obj");
+    // objetos[0]->LoadFile("dude.obj");
+    objetos[0]->LoadFile("solids.obj");
+    // objetos[0]->LoadFile("planes.obj");
+    // objetos[0]->LoadFile("hexadecagon.obj");
 
     DefineLuz();
     PosicUser();
