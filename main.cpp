@@ -185,8 +185,8 @@ void init()
 
     objetos.emplace_back(new Objeto3D());
     // objetos[0]->LoadFile("dude.obj");
-    // objetos[0]->LoadFile("solids.obj");
-    objetos[0]->LoadFile("planes.obj");
+    objetos[0]->LoadFile("solids.obj");
+    // objetos[0]->LoadFile("planes.obj");
     // objetos[0]->LoadFile("concavo.obj");
     // objetos[0]->LoadFile("hexadecagon.obj");
 

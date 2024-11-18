@@ -119,8 +119,8 @@ void Objeto3D::LoadFile(std::string file)
     // TriangulaMesh();
     // SubdivideMesh(1);
     // TriangulaMesh();
-    // SubdivideMesh(1);
-    // TriangulaMesh();
+    SubdivideMesh(1);
+    TriangulaMesh();
 
     // Para teste dos planos
     // TriangulaFace(0);
@@ -128,9 +128,9 @@ void Objeto3D::LoadFile(std::string file)
     // TriangulaFace(2);
 
     // Subdivide em
-    SubdivideFaceEm(7, 0); // Octagono
-    SubdivideFaceEm(15, 1); // Hexadecagono
-    SubdivideFaceEm(4, 2); // Pentagono
+    // SubdivideFaceEm(0, 8); // Octagono
+    // SubdivideFaceEm(1, 16); // Hexadecagono
+    // SubdivideFaceEm(2, 5); // Pentagono
 }
 
 void Objeto3D::DesenhaVertices()
@@ -261,8 +261,8 @@ void Objeto3D::SimplifyGeometry()
 
 }
 
-// WIP Divide face em 2 ou mais, até o máximo possível
-void Objeto3D::SubdivideFaceEm(size_t times, size_t faceIndex)
+// Divide determinadas vezes (funciona, mas dá bug no draw, por alguma razão, como se fizesse TRIANGLE_FAN)
+void Objeto3D::SubdivideFaceEm(size_t faceIndex, size_t times)
 {
     int num_vertices = faces[faceIndex].size();
 
@@ -306,65 +306,6 @@ void Objeto3D::SubdivideFaceEm(size_t times, size_t faceIndex)
 
     centroides[faceIndex] = CalculaCentroide(faceIndex);
 
-    // if (num_vertices == 4)
-    // {
-    //     return;
-    // }
-
-    // if (num_vertices > 4)
-    // {
-    //     ngons.erase(std::remove(ngons.begin(), ngons.end(), faceIndex), ngons.end());
-    // }
-    // else
-    // {
-    //     tris.erase(std::remove(tris.begin(), tris.end(), faceIndex), tris.end());
-    // }
-
-    // quads.push_back(faceIndex);
-}
-
-// Subdivide uma face da mesh (genérico)
-void Objeto3D::SubdivideFace(size_t faceIndex)
-{
-    int num_vertices = faces[faceIndex].size();
-
-    // Se não é uma face, ignora
-    if (num_vertices < 3)
-    {
-        return;
-    }
-
-    // Cria novos vértices
-    for (size_t i = 0; i < num_vertices; i++)
-    {
-        vertices.emplace_back(Ponto((vertices[faces[faceIndex][i]].getX() + vertices[faces[faceIndex][(i+1) % faces[faceIndex].size()]].getX())/2.0f, // (% faces[f].size()) volta a zero se passa do número máximo do vetor
-                                    (vertices[faces[faceIndex][i]].getY() + vertices[faces[faceIndex][(i+1) % faces[faceIndex].size()]].getY())/2.0f,
-                                    (vertices[faces[faceIndex][i]].getZ() + vertices[faces[faceIndex][(i+1) % faces[faceIndex].size()]].getZ())/2.0f));
-    }
-
-    vertices.push_back(centroides[faceIndex]); // Adiciona centroide da face original aos vertices
-
-    // Cria num_vertices-1 (1 até num_vertices) novos quads (porque o inicial será modificado depois)
-    for (size_t i = 1; i < num_vertices; i++)
-    {
-        faces.push_back(std::vector<size_t>(4)); // Adiciona uma nova face
-
-        faces.back()[0] = faces[faceIndex][i]; // Adiciona o primeiro vértice, de 1 até num_vertices
-        faces.back()[1] = vertices.size()-(num_vertices + 1 - i); // Adiciona o vértice anterior ao vértice i da face
-        faces.back()[2] = vertices.size()-1; // Centróide
-        faces.back()[3] = vertices.size()-(num_vertices + 2 - i); // Adiciona o vértice posterior ao vértice i da face
-
-        centroides.push_back(CalculaCentroide(faces.size()-1)); // Calcula centroide da nova face
-    }
-
-    // Modifica face existente
-    faces[faceIndex].resize(4);
-    faces[faceIndex][1] = vertices.size() - (num_vertices + 1); // Index do primeiro vértice criado na subdivisão
-    faces[faceIndex][2] = vertices.size() - 1; // Index do centróide
-    faces[faceIndex][3] = vertices.size() - 2; // Último vértice a ser criado na subdivisão
-
-    centroides[faceIndex] = CalculaCentroide(faceIndex);
-
     if (num_vertices == 4)
     {
         return;
@@ -380,6 +321,14 @@ void Objeto3D::SubdivideFace(size_t faceIndex)
     }
 
     quads.push_back(faceIndex);
+}
+
+// Subdivide uma face da mesh (genérico)
+void Objeto3D::SubdivideFace(size_t faceIndex)
+{
+    int num_vertices = faces[faceIndex].size();
+
+    SubdivideFaceEm(faceIndex, num_vertices);
 }
 
 // Subdivide toda mesh determinadas vezes
