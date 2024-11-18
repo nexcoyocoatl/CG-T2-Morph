@@ -143,7 +143,11 @@ void desenha()
 
     for (Objeto3D* o : objetos)
     {
+        glEnable(GL_POLYGON_OFFSET_FILL);
+        glPolygonOffset(0.5f, 0.5f);
         o->Desenha();
+
+        glDisable(GL_POLYGON_OFFSET_FILL);
         o->DesenhaWireframe();
         o->DesenhaVertices();
         o->DesenhaCentroides();
@@ -181,8 +185,9 @@ void init()
 
     objetos.emplace_back(new Objeto3D());
     // objetos[0]->LoadFile("dude.obj");
-    objetos[0]->LoadFile("solids.obj");
-    // objetos[0]->LoadFile("planes.obj");
+    // objetos[0]->LoadFile("solids.obj");
+    objetos[0]->LoadFile("planes.obj");
+    // objetos[0]->LoadFile("concavo.obj");
     // objetos[0]->LoadFile("hexadecagon.obj");
 
     DefineLuz();

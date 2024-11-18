@@ -35,7 +35,7 @@ public:
 
     void SimplifyGeometry();
 
-    void SubdivideFaceEm2(size_t faceIndex);
+    void SubdivideFaceEm(size_t times, size_t faceIndex);
     void SubdivideFace(size_t faceIndex);
     void SubdivideMesh(size_t n_times);
     void TriangulaQuad(size_t faceIndex);

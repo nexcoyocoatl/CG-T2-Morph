@@ -114,15 +114,23 @@ void Objeto3D::LoadFile(std::string file)
 
     // testes
     // TriangulaMesh();
-    TriangulaMesh();
+    // TriangulaMesh();
     // SubdivideMesh(1);
     // TriangulaMesh();
-    // SubdivideMesh(8);
+    // SubdivideMesh(1);
+    // TriangulaMesh();
+    // SubdivideMesh(1);
+    // TriangulaMesh();
 
     // Para teste dos planos
     // TriangulaFace(0);
     // TriangulaFace(1);
     // TriangulaFace(2);
+
+    // Subdivide em
+    SubdivideFaceEm(7, 0); // Octagono
+    SubdivideFaceEm(15, 1); // Hexadecagono
+    SubdivideFaceEm(4, 2); // Pentagono
 }
 
 void Objeto3D::DesenhaVertices()
@@ -174,9 +182,20 @@ void Objeto3D::Desenha()
     
     for (std::vector<size_t> f : faces)
     {
+        // teste
+        if (f.size() != 4)
+        {
+            glColor3f(0.99f, 0.34f, 0.34f);
+        }
+        else
+        {
+            glColor3f(0.34f, 0.34f, 0.34f);
+        }
+        // teste
+
         glBegin(GL_TRIANGLE_FAN);
         for (size_t iv : f)
-        {
+        {            
             glVertex3f(vertices[iv].getX(), vertices[iv].getY(), vertices[iv].getZ());
         }            
         glEnd();
@@ -213,7 +232,7 @@ void Objeto3D::RecalculaCentroides()
 
     for (size_t i = 0; i < faces.size(); i++)
     {
-        centroides[i] = CalculaCentroide(i);
+        centroides.emplace_back(CalculaCentroide(i));
     }
 }
 
@@ -236,22 +255,86 @@ void Objeto3D::DesenhaCentroides()
     glPopMatrix();
 }
 
-void SimplifyGeometry()
+// WIP: Não sei se vou fazer
+void Objeto3D::SimplifyGeometry()
 {
 
 }
 
-// WIP Divide face em 2
-void SubdivideFaceEm2(size_t faceIndex)
+// WIP Divide face em 2 ou mais, até o máximo possível
+void Objeto3D::SubdivideFaceEm(size_t times, size_t faceIndex)
 {
+    int num_vertices = faces[faceIndex].size();
 
+    // Se não é uma face, se divide por uma vez só, ou sé é mais que o número de vértices, ignora
+    if (num_vertices < 3 || times == 1 || times > num_vertices)
+    {
+        return;
+    }
+
+    // Cria novos vértices
+    for (size_t i = 0; i < times; i++)
+    {
+        vertices.emplace_back(Ponto((vertices[faces[faceIndex][i]].getX() + vertices[faces[faceIndex][(i+1) % faces[faceIndex].size()]].getX())/2.0f, // (% faces[f].size()) volta a zero se passa do número máximo do vetor
+                                    (vertices[faces[faceIndex][i]].getY() + vertices[faces[faceIndex][(i+1) % faces[faceIndex].size()]].getY())/2.0f,
+                                    (vertices[faces[faceIndex][i]].getZ() + vertices[faces[faceIndex][(i+1) % faces[faceIndex].size()]].getZ())/2.0f));
+    }
+
+    vertices.push_back(centroides[faceIndex]); // Adiciona centroide da face original aos vertices
+
+    // Cria num_vertices-1 (1 até num_vertices) novos quads (porque o inicial será modificado depois)
+    for (size_t i = 1; i < times; i++)
+    {
+        faces.push_back(std::vector<size_t>(4)); // Adiciona uma nova face
+
+        faces.back()[0] = faces[faceIndex][i]; // Adiciona o primeiro vértice, de 1 até num_vertices
+        faces.back()[1] = vertices.size()-(times + 1 - i); // Adiciona o vértice anterior ao vértice i da face
+        faces.back()[2] = vertices.size()-1; // Centróide
+        faces.back()[3] = vertices.size()-(times + 2 - i); // Adiciona o vértice posterior ao vértice i da face
+
+        centroides.push_back(CalculaCentroide(faces.size()-1)); // Calcula centroide da nova face
+    }
+
+    // Modifica face existente
+    for (size_t i = 0; i < times-1; i++)
+    {
+        faces[faceIndex].erase(faces[faceIndex].begin()+1);
+    }
+    faces[faceIndex].insert(faces[faceIndex].begin() + 1, vertices.size() - 2); // Último vértice a ser criado na subdivisão
+    faces[faceIndex].insert(faces[faceIndex].begin() + 1, vertices.size() - 1); // Index do centróide
+    faces[faceIndex].insert(faces[faceIndex].begin() + 1, (vertices.size() - (times + 1))); // Index do primeiro vértice criado na subdivisão
+
+    centroides[faceIndex] = CalculaCentroide(faceIndex);
+
+    // if (num_vertices == 4)
+    // {
+    //     return;
+    // }
+
+    // if (num_vertices > 4)
+    // {
+    //     ngons.erase(std::remove(ngons.begin(), ngons.end(), faceIndex), ngons.end());
+    // }
+    // else
+    // {
+    //     tris.erase(std::remove(tris.begin(), tris.end(), faceIndex), tris.end());
+    // }
+
+    // quads.push_back(faceIndex);
 }
 
-// Subdivide uma face da mesh (acredito ser genérico)
+// Subdivide uma face da mesh (genérico)
 void Objeto3D::SubdivideFace(size_t faceIndex)
 {
     int num_vertices = faces[faceIndex].size();
 
+    // Se não é uma face, ignora
+    if (num_vertices < 3)
+    {
+        return;
+    }
+
+    // Cria novos vértices
     for (size_t i = 0; i < num_vertices; i++)
     {
         vertices.emplace_back(Ponto((vertices[faces[faceIndex][i]].getX() + vertices[faces[faceIndex][(i+1) % faces[faceIndex].size()]].getX())/2.0f, // (% faces[f].size()) volta a zero se passa do número máximo do vetor
@@ -259,35 +342,44 @@ void Objeto3D::SubdivideFace(size_t faceIndex)
                                     (vertices[faces[faceIndex][i]].getZ() + vertices[faces[faceIndex][(i+1) % faces[faceIndex].size()]].getZ())/2.0f));
     }
 
-    vertices.push_back(centroides[faceIndex]); // Adiciona centroide aos vertices
+    vertices.push_back(centroides[faceIndex]); // Adiciona centroide da face original aos vertices
 
-    // Cria num_vertices-1 (1 até num_vertices) novos quads (porque o inicial será modificada depois)
+    // Cria num_vertices-1 (1 até num_vertices) novos quads (porque o inicial será modificado depois)
     for (size_t i = 1; i < num_vertices; i++)
     {
-        // WIP: Inserir próxima a original (com .insert()?)
-        faces.push_back(std::vector<size_t>()); // Adiciona uma nova face
+        faces.push_back(std::vector<size_t>(4)); // Adiciona uma nova face
 
-        faces.back().push_back((faces[faceIndex][i])); // Adiciona o primeiro vértice, de 1 até num_vertices
-        faces.back().push_back((vertices.size()-(num_vertices + 1 - i))); // Adiciona o vértice anterior ao vértice i da face
-        faces.back().push_back((vertices.size()-1)); // Centróide
-        faces.back().push_back((vertices.size()-(num_vertices + 2 - i))); // Adiciona o vértice posterior ao vértice i da face
+        faces.back()[0] = faces[faceIndex][i]; // Adiciona o primeiro vértice, de 1 até num_vertices
+        faces.back()[1] = vertices.size()-(num_vertices + 1 - i); // Adiciona o vértice anterior ao vértice i da face
+        faces.back()[2] = vertices.size()-1; // Centróide
+        faces.back()[3] = vertices.size()-(num_vertices + 2 - i); // Adiciona o vértice posterior ao vértice i da face
 
         centroides.push_back(CalculaCentroide(faces.size()-1)); // Calcula centroide da nova face
     }
 
     // Modifica face existente
-    faces[faceIndex][1] = (vertices.size() - (num_vertices + 1)); // Index do primeiro vértice criado na subdivisão
-    faces[faceIndex][2] = (vertices.size() - 1); // Index do centróide
-    if (faces[faceIndex].size() < 4) // Se é um triângulo é necessário adicionar ao vetor, ao invés de atribuir um valor a um elemento existente
+    faces[faceIndex].resize(4);
+    faces[faceIndex][1] = vertices.size() - (num_vertices + 1); // Index do primeiro vértice criado na subdivisão
+    faces[faceIndex][2] = vertices.size() - 1; // Index do centróide
+    faces[faceIndex][3] = vertices.size() - 2; // Último vértice a ser criado na subdivisão
+
+    centroides[faceIndex] = CalculaCentroide(faceIndex);
+
+    if (num_vertices == 4)
     {
-        faces[faceIndex].push_back((vertices.size() - 2)); // Index do último vértice criado na subdivisão (adicionado antes do centróide)
+        return;
+    }
+
+    if (num_vertices > 4)
+    {
+        ngons.erase(std::remove(ngons.begin(), ngons.end(), faceIndex), ngons.end());
     }
     else
     {
-        faces[faceIndex][3] = (vertices.size() - 2); // Index do último vértice criado na subdivisão (adicionado antes do centróide)
+        tris.erase(std::remove(tris.begin(), tris.end(), faceIndex), tris.end());
     }
 
-    centroides[faceIndex] = CalculaCentroide(faceIndex);
+    quads.push_back(faceIndex);
 }
 
 // Subdivide toda mesh determinadas vezes
@@ -304,7 +396,7 @@ void Objeto3D::SubdivideMesh(size_t n_times)
     }
 }
 
-// WIP: Talvez fazer genérico pra qualquer tipo de polígono?
+// Triangula apenas quads
 void Objeto3D::TriangulaQuad(size_t faceIndex)
 {
     // Ignora se não é quad
@@ -332,13 +424,12 @@ void Objeto3D::TriangulaFace(size_t faceIndex)
 {
     size_t num_vertices = faces[faceIndex].size();
 
-    // Se é triângulo, ou até linha ou ponto, já retorna
+    // Se é triângulo, ou até aresta ou vértice, já retorna
     if (num_vertices <= 3)
     {
         return;
     }
 
-    // Não parece estar funcionando direito
     if (num_vertices == 4)
     {
         TriangulaQuad(faceIndex);
@@ -350,8 +441,7 @@ void Objeto3D::TriangulaFace(size_t faceIndex)
 
     // Cria as "orelhas" a partir da face original
     for (size_t i = 0; i < num_vertices - 1; i += 2)
-    {
-        
+    {        
         centerFace.push_back(faces[faceIndex][i]);
 
         faces.push_back(std::vector<size_t>(3));
@@ -441,6 +531,34 @@ void Objeto3D::teste()
 {
     std::cout << "Tris: " << tris.size() << " Quads: " << quads.size() << " Ngons: " << ngons.size() << "\n";
     std::cout << "Faces size: " << faces.size() << " Centroides: " << centroides.size() << "\n";
+
+    // size_t n_tris = 0;
+    // size_t n_quads = 0;
+    // size_t n_ngons = 0;
+    // size_t n_wtf = 0;
+
+    // for (size_t i = 0; i < faces.size(); i++)
+    // {
+    //     if (faces[i].size() == 3)
+    //     {
+    //         n_tris++;
+    //     }
+    //     else if (faces[i].size() == 4)
+    //     {
+    //         n_quads++;
+    //     }
+    //     else if (faces[i].size() > 4)
+    //     {
+    //         n_ngons++;
+    //     }
+    //     else
+    //     {
+    //         n_wtf++;
+    //     }
+    // }
+
+    // std::cout << "Tris: " << n_tris << " Quads: " << n_quads << " Ngons: " << n_ngons << " wtf?!: " << n_wtf << "\n";
+    
 
     // for (size_t i = 0; i < tris.size(); i++)
     // {
