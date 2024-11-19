@@ -22,6 +22,15 @@ private:
 
 public:
     Objeto3D();
+
+    size_t getNFaces();
+    size_t getNTris();
+    size_t getNQuads();
+    size_t getNNgons();
+
+    size_t getNVertices();
+    Ponto* getVertice(size_t i);
+
     float getRotationAngle();
     void setRotation(float angle, float x, float y, float z);
     void LoadFile(std::string file);

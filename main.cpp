@@ -22,6 +22,10 @@
 
 std::vector<Objeto3D*> objetos;
 
+float t_old {};
+float t {};
+float dt {};
+
 void DefineLuz()
 {
     // Define cores para um objeto dourado
@@ -134,6 +138,10 @@ void DesenhaCubo()
 
 void desenha()
 {
+    t = (float)glutGet(GLUT_ELAPSED_TIME);
+    dt = (t - t_old);
+    t_old = t;
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glMatrixMode(GL_MODELVIEW);
@@ -162,15 +170,15 @@ void teclado(unsigned char key, int x, int y)
     switch (key)
     {
         case 'r':
-        for (Objeto3D* o : objetos)
-        {
-            o->setRotation(1.0f, 0.0f, 0.0f, o->getRotationAngle() + 2.0f);
-        }
+            for (Objeto3D* o : objetos)
+            {
+                o->setRotation(o->getRotationAngle() + (0.1f * dt), 0.0f, 0.0f, 1.0f);
+            }
 
-        glutPostRedisplay();
+            break;
+    }
 
-        break;
-    }    
+    glutPostRedisplay();
 }
 
 void init()
@@ -197,8 +205,36 @@ void init()
     objetos[0]->teste();
 }
 
-void animate()
+void TranslationToInFrames(Objeto3D posInicial, Objeto3D posFinal, float dt)
 {
+    // Não trabalha com ngons
+    // if (posInicial.getNNgons()> 0 || posFinal.getNNgons() > 0)
+    // {
+    //     return;
+    // }
+
+    // if (posFinal.getNFaces() != posFinal.getNFaces() || (tris.size() != posFinal.getNTris() || quads.size() != posFinal.getNQuads()))
+    // {
+    //     return;
+    // }
+
+    // if (inicioFrames != nFrames)
+    // {
+    //     for (size_t i = 0; i < posInicial.getNVertices(); i++)
+    //     {
+    //         Ponto* vInicial = posInicial.getVertice(i);
+    //         Ponto* vFinal = posFinal.getVertice(i);
+
+    //         size_t x = (vFinal->getX() - );
+            
+    //         vInicial.set();
+    //     }
+    // }
+}
+
+void idle()
+{
+    
 }
 
 int main(int argc, char **argv)
@@ -223,7 +259,7 @@ int main(int argc, char **argv)
     // Registra a funcao callback de redesenho da janela de visualizacao
     glutDisplayFunc(desenha);
 
-    glutIdleFunc(animate);
+    glutIdleFunc(idle);
 
     // Registra a funcao callback para tratamento das teclas ASCII
     glutKeyboardFunc(teclado);

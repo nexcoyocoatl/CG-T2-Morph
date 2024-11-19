@@ -37,6 +37,36 @@ void Objeto3D::setRotation(float angle, float x, float y, float z)
     rotation[2] = z;
 }
 
+size_t Objeto3D::getNFaces()
+{
+    return faces.size();
+}
+
+size_t Objeto3D::getNTris()
+{
+    return tris.size();
+}
+
+size_t Objeto3D::getNQuads()
+{
+    return quads.size();
+}
+
+size_t Objeto3D::getNNgons()
+{
+    return ngons.size();
+}
+
+size_t Objeto3D::getNVertices()
+{
+    return vertices.size();
+}
+
+Ponto* Objeto3D::getVertice(size_t i)
+{
+    return &vertices[i];
+}
+
 void Objeto3D::LoadFile(std::string file)
 {
     std::ifstream f (file);
@@ -182,17 +212,6 @@ void Objeto3D::Desenha()
     
     for (std::vector<size_t> f : faces)
     {
-        // teste
-        if (f.size() != 4)
-        {
-            glColor3f(0.99f, 0.34f, 0.34f);
-        }
-        else
-        {
-            glColor3f(0.34f, 0.34f, 0.34f);
-        }
-        // teste
-
         glBegin(GL_TRIANGLE_FAN);
         for (size_t iv : f)
         {            
@@ -428,34 +447,6 @@ void Objeto3D::TriangulaFace(size_t faceIndex)
         ngons.erase(std::remove(ngons.begin(), ngons.end(), faceIndex), ngons.end());
         tris.push_back(faceIndex);
     }
-    
-    // Lógica antiga (talvez possa ser reutilizada)
-    // printf("numero de vertices %lu\n", num_vertices);
-    // for (size_t i = 0; i < num_vertices - 1; i++)
-    // {
-    //     if (i % 2 != 0)
-    //     {
-    //         if (i == 3)
-    //         {
-    //             continue;
-    //         }
-    //         faces[faceIndex].erase(std::remove(std::begin(faces[faceIndex]), faces[faceIndex].end(), i), faces[faceIndex].end());
-    //         // centerFace.push_back(faces[faceIndex][i]);
-    //     }
-    //     else
-    //     {
-    //         printf("teste i = %lu\n", i);
-    //         printf("vertices: [%d] = %d, [%d] = %d, [%d] = %d\n", i, faces[faceIndex][i], i + 1, faces[faceIndex][i + 1], (i + 2) % num_vertices, faces[faceIndex][(i + 2) % num_vertices]);
-
-    //         faces.push_back(std::vector<size_t>(3));
-    //         faces.back()[0] = faces[faceIndex][i];
-    //         faces.back()[1] = faces[faceIndex][i + 1];
-    //         faces.back()[2] = faces[faceIndex][(i + 2) % num_vertices];
-    //         tris.push_back(faces.size() - 1);
-
-    //         centroides.push_back(CalculaCentroide(faces.size() - 1));
-    //     }
-    // }
 }
 
 // Triangula todos quads da mesh
@@ -471,10 +462,30 @@ void Objeto3D::TriangulaMesh()
 }
 
 // Subdivide até chegar exatamente no número de faces determinado
-void SubdivideUntil(size_t num_faces)
+void Objeto3D::SubdivideUntil(size_t num_faces)
 {
+    if (faces.size() > num_faces)
+    {
+        return;
+    }
 
+    if (ngons.size() > 0)
+    {
+        size_t ngons_verts = 0;
+
+        for (size_t ngon : ngons)
+        {
+            ngons_verts += faces[ngon].size();
+        }
+
+    
+        // if (ngons_verts * )
+    }
+
+    // while (faces.size())
 }
+
+
 
 void Objeto3D::teste()
 {
