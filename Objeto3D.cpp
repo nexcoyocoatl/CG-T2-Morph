@@ -13,6 +13,9 @@
 
 #include "Objeto3D.h"
 
+#include "Plane.cpp"
+// #include "Ray.h"
+
 #include <fstream>
 #include <algorithm>
 
@@ -22,6 +25,12 @@
 Objeto3D::Objeto3D()
     : vertices {}, faces {}, position {Ponto(0.0f, 0.0f, 0.0f)}
 {
+}
+
+Objeto3D::Objeto3D(std::string filename)
+    : vertices {}, faces {}, position {Ponto(0.0f, 0.0f, 0.0f)}
+{
+    LoadFile(filename);
 }
 
 float Objeto3D::getRotationAngle()
@@ -65,6 +74,30 @@ size_t Objeto3D::getNVertices()
 Ponto* Objeto3D::getVertice(size_t i)
 {
     return &vertices[i];
+}
+
+// std::vector <size_t> Objeto3D::getFace(size_t iv)
+// {
+//     std::vector <size_t> temp;
+//     copy(faces[iv].begin(), faces[iv].end(), back_inserter(temp));
+//     return temp;
+// }
+
+std::vector <size_t>* Objeto3D::getFace(size_t iv)
+{
+    return &faces[iv];
+}
+
+Plane Objeto3D::getPlaneFromFace(size_t iv)
+{
+    Ponto vec1 = vertices[faces[iv][1]] - vertices[faces[iv][0]];
+    Ponto vec2 = vertices[faces[iv][2]] - vertices[faces[iv][0]];
+    
+    Ponto n = Ponto::crossProduct(&vec1, &vec2);
+
+    float d = -(Ponto::dotProduct(&n, &vertices[faces[iv][0]]));
+
+    return Plane(n, d);
 }
 
 void Objeto3D::LoadFile(std::string file)
@@ -166,7 +199,7 @@ void Objeto3D::LoadFile(std::string file)
 void Objeto3D::DesenhaVertices()
 {
     glPushMatrix();
-    glTranslatef(position.getX(), position.getY(), position.getZ());
+    glTranslatef(position.x, position.y, position.z);
     glRotatef(rotation[3], rotation[0], rotation[1], rotation[2]);
     glColor3f(0.1f, 0.1f, 0.8f);
     glPointSize(8.0f);
@@ -174,7 +207,7 @@ void Objeto3D::DesenhaVertices()
     glBegin(GL_POINTS);
     for (Ponto v : vertices)
     {
-        glVertex3f(v.getX(), v.getY(), v.getZ());
+        glVertex3f(v.x, v.y, v.z);
     }
     glEnd();
     
@@ -184,7 +217,7 @@ void Objeto3D::DesenhaVertices()
 void Objeto3D::DesenhaWireframe()
 {
     glPushMatrix();
-    glTranslatef(position.getX(), position.getY(), position.getZ());
+    glTranslatef(position.x, position.y, position.z);
     glRotatef(rotation[3], rotation[0], rotation[1], rotation[2]);
     glColor3f(0.0f, 0.0f, 0.0f);
     glLineWidth(2.0f);
@@ -194,7 +227,7 @@ void Objeto3D::DesenhaWireframe()
         glBegin(GL_LINE_LOOP);
         for (size_t iv : f)
         {
-            glVertex3f(vertices[iv].getX(), vertices[iv].getY(), vertices[iv].getZ());
+            glVertex3f(vertices[iv].x, vertices[iv].y, vertices[iv].z);
         }
         glEnd();
     }
@@ -205,7 +238,7 @@ void Objeto3D::DesenhaWireframe()
 void Objeto3D::Desenha()
 {
     glPushMatrix();
-    glTranslatef(position.getX(), position.getY(), position.getZ());
+    glTranslatef(position.x, position.y, position.z);
     glRotatef(rotation[3], rotation[0], rotation[1], rotation[2]);
     glColor3f(0.34f, 0.34f, 0.34f);
     glLineWidth(2.0f);
@@ -215,7 +248,7 @@ void Objeto3D::Desenha()
         glBegin(GL_TRIANGLE_FAN);
         for (size_t iv : f)
         {            
-            glVertex3f(vertices[iv].getX(), vertices[iv].getY(), vertices[iv].getZ());
+            glVertex3f(vertices[iv].x, vertices[iv].y, vertices[iv].z);
         }            
         glEnd();
     }
@@ -232,9 +265,9 @@ Ponto Objeto3D::CalculaCentroide(size_t faceIndex)
 
     for (size_t iv : faces[faceIndex])
     {
-        x += vertices[iv].getX();
-        y += vertices[iv].getY();
-        z += vertices[iv].getZ();
+        x += vertices[iv].x;
+        y += vertices[iv].y;
+        z += vertices[iv].z;
     }
     return Ponto(x/n, y/n, z/n);
 }
@@ -259,7 +292,7 @@ void Objeto3D::RecalculaCentroides()
 void Objeto3D::DesenhaCentroides()
 {
     glPushMatrix();
-    glTranslatef(position.getX(), position.getY(), position.getZ());
+    glTranslatef(position.x, position.y, position.z);
     glRotatef(rotation[3], rotation[0], rotation[1], rotation[2]);
     glColor3f(0.8f, 0.1f, 0.1f);
     glPointSize(8.0f);
@@ -267,7 +300,7 @@ void Objeto3D::DesenhaCentroides()
     glBegin(GL_POINTS);
     for (Ponto c : centroides)
     {
-        glVertex3f(c.getX(), c.getY(), c.getZ());
+        glVertex3f(c.x, c.y, c.z);
     }
     glEnd();  
 
@@ -294,9 +327,9 @@ void Objeto3D::SubdivideFaceEm(size_t faceIndex, size_t times)
     // Cria novos vértices
     for (size_t i = 0; i < times; i++)
     {
-        vertices.emplace_back(Ponto((vertices[faces[faceIndex][i]].getX() + vertices[faces[faceIndex][(i+1) % faces[faceIndex].size()]].getX())/2.0f, // (% faces[f].size()) volta a zero se passa do número máximo do vetor
-                                    (vertices[faces[faceIndex][i]].getY() + vertices[faces[faceIndex][(i+1) % faces[faceIndex].size()]].getY())/2.0f,
-                                    (vertices[faces[faceIndex][i]].getZ() + vertices[faces[faceIndex][(i+1) % faces[faceIndex].size()]].getZ())/2.0f));
+        vertices.emplace_back(Ponto((vertices[faces[faceIndex][i]].x + vertices[faces[faceIndex][(i+1) % faces[faceIndex].size()]].x)/2.0f, // (% faces[f].size()) volta a zero se passa do número máximo do vetor
+                                    (vertices[faces[faceIndex][i]].y + vertices[faces[faceIndex][(i+1) % faces[faceIndex].size()]].y)/2.0f,
+                                    (vertices[faces[faceIndex][i]].z + vertices[faces[faceIndex][(i+1) % faces[faceIndex].size()]].z)/2.0f));
     }
 
     vertices.push_back(centroides[faceIndex]); // Adiciona centroide da face original aos vertices

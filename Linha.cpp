@@ -13,13 +13,13 @@
 
 #include "Linha.h"
 
-Linha::Linha(Ponto a, Ponto b)
-    : m_a {a}, m_b {b}
+Linha::Linha(Ponto _a, Ponto _b)
+    : a {_a}, b {_b}
 {
 }
 
 Linha::Linha(float x1, float y1, float z1, float x2, float y2, float z2)
-    : m_a {Ponto(x1, y1, z1)}, m_b {Ponto(x2, y2, z2)}
+    : a {Ponto(x1, y1, z1)}, b {Ponto(x2, y2, z2)}
 {
 }
 
@@ -28,8 +28,8 @@ void Linha::desenhaLinha()
 {
     glBegin(GL_LINES);
     
-    glVertex3f(m_a.getX(), m_a.getY(), m_a.getZ());
-    glVertex3f(m_b.getX(), m_b.getY(), m_b.getZ());
+    glVertex3f(a.x, a.y, a.z);
+    glVertex3f(b.x, b.y, b.z);
 
     glEnd();
 }

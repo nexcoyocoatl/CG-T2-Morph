@@ -3,20 +3,19 @@
 
 class Ponto
 {
-private:
-    float m_x, m_y, m_z;
-
 public:
-    Ponto(float x, float y, float z);
-    void set(float x, float y, float z);
+    float x, y, z;
+    Ponto();
+    Ponto(float _x, float _y, float _z);
+    void set(float _x, float _y, float _z);
 
-    float getX();
-    float getY();
-    float getZ();
+    Ponto operator+(const Ponto &p2) const;
+    Ponto operator-(const Ponto &p2) const;
+    Ponto operator*(const Ponto &p2) const;
+    Ponto operator*(const float scalar) const;
 
-    Ponto __add__(float x, float y, float z);
-    Ponto __sub__(float x, float y, float z);
-    Ponto __mul__(int n);
+    static float dotProduct(const Ponto* p1, const Ponto* p2);
+    static Ponto crossProduct(const Ponto* p1, const Ponto* p2);
 
     void rotacionaX(float angulo);
     void rotacionaY(float angulo);

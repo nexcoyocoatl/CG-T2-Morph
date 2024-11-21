@@ -2,6 +2,7 @@
 #define OBJETO_3D
 
 #include "Ponto.h"
+#include "Plane.cpp"
 
 #include <vector>
 #include <string>
@@ -22,6 +23,7 @@ private:
 
 public:
     Objeto3D();
+    Objeto3D(std::string filename);
 
     size_t getNFaces();
     size_t getNTris();
@@ -30,6 +32,9 @@ public:
 
     size_t getNVertices();
     Ponto* getVertice(size_t i);
+    std::vector <size_t>* getFace(size_t iv);
+
+    Plane getPlaneFromFace(size_t iv);
 
     float getRotationAngle();
     void setRotation(float angle, float x, float y, float z);

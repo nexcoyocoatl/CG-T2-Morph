@@ -16,11 +16,14 @@
 #include "Linha.h"
 #include "Objeto3D.h"
 #include "Ponto.h"
-#include "include/GL/freeglut.h"
+#include "Plane.cpp"
+#include "Ray.h"
 
+#include "include/GL/freeglut.h"
 #include <iostream>
 
 std::vector<Objeto3D*> objetos;
+std::vector<Ray> rays;
 
 float t_old {};
 float t {};
@@ -158,8 +161,18 @@ void desenha()
         glDisable(GL_POLYGON_OFFSET_FILL);
         o->DesenhaWireframe();
         o->DesenhaVertices();
-        o->DesenhaCentroides();
+        // o->DesenhaCentroides();
     }
+    
+    // Desenha raios
+    for (size_t i = 0; i < rays.size(); i++)
+    {
+        if (rays[i].length > 0)
+        {
+            rays[i].draw();
+        }
+    }
+    
 
     glutSwapBuffers();
 }    
@@ -191,12 +204,32 @@ void init()
     glEnable(GL_CULL_FACE);
     glPolygonMode(GL_FRONT, GL_FILL);
 
-    objetos.emplace_back(new Objeto3D());
+    objetos.emplace_back(new Objeto3D("simplesphere.obj"));
+    objetos.emplace_back(new Objeto3D("invertedquartersphere.obj"));
     // objetos[0]->LoadFile("dude.obj");
-    objetos[0]->LoadFile("solids.obj");
+    // objetos[0]->LoadFile("solids.obj");
     // objetos[0]->LoadFile("planes.obj");
     // objetos[0]->LoadFile("concavo.obj");
     // objetos[0]->LoadFile("hexadecagon.obj");
+
+    std::cout << objetos[0]->getNVertices() << "\n";
+
+    for (size_t i = 0; i < objetos[0]->getNVertices(); i++)
+    {
+        Ponto v = *objetos[0]->getVertice(i);
+        Ray r = Ray(v);
+
+        for (size_t j = 0; j < objetos[1]->getNFaces(); j++)
+        {
+            if (r.b_intersectPlane(objetos[1]->getPlaneFromFace(j)))
+            {
+                rays.push_back(r);
+                objetos[0]->getVertice(i)->set(r.end.x, r.end.y, r.end.z);
+                break;
+            }
+        }
+    }
+    std::cout << "rays size: " << rays.size() << "\n";
 
     DefineLuz();
     PosicUser();

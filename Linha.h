@@ -4,13 +4,12 @@
 #include "Ponto.h"
 
 class Linha
-{
-private:
-    Ponto m_a;
-    Ponto m_b;
-    
+{    
 public:
-    Linha(Ponto a, Ponto b);
+    Ponto a;
+    Ponto b;
+
+    Linha(Ponto _a, Ponto _b);
     Linha(float x1, float y1, float z1, float x2, float y2, float z2);
     void desenhaLinha();
 };

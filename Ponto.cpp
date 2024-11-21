@@ -5,51 +5,116 @@
 
 #define PI 3.14159265359
 
-Ponto::Ponto(float x, float y, float z)
-    : m_x {x}, m_y {y}, m_z {z}
+Ponto::Ponto() : x {}, y {}, z{}
 {
 }
 
-float Ponto::getX()
+Ponto::Ponto(float _x, float _y, float _z)
+    : x {_x}, y {_y}, z {_z}
 {
-    return m_x;
-}
-float Ponto::getY()
-{
-    return m_y;
-}
-float Ponto::getZ()
-{
-    return m_z;
 }
 
-void Ponto::set(float x, float y, float z)
+void Ponto::set(float _x, float _y, float _z)
 {
-    m_x = x;
-    m_y = y;
-    m_z = z;
+    x = _x;
+    y = _y;
+    z = _z;
 }
 
-Ponto Ponto::__add__(float x, float y, float z)
+Ponto& operator+=(Ponto &p1, const Ponto &p2)
 {
-    x += m_x;
-    y += m_y;
-    return Ponto(x, y, 0.0f);
+    p1.x += p2.x;
+    p1.y += p2.y;
+    p1.z += p2.z;
+    return p1;
 }
 
-Ponto Ponto::__sub__(float x, float y, float z)
+Ponto& operator-=(Ponto &p1, const Ponto &p2)
 {
-    x -= m_x;
-    y -= m_y;
-    return Ponto(x, y, 0.0f);
+    p1.x -= p2.x;
+    p1.y -= p2.y;
+    p1.z -= p2.z;
+    return p1;
 }
 
-Ponto Ponto::__mul__(int n)
+Ponto& operator*=(Ponto &p1, const Ponto &p2)
 {
-    int x, y {};
-    x *= n;
-    y *= n;
-    return Ponto(x, y, 0.0f);
+    p1.x *= p2.x;
+    p1.y *= p2.y;
+    p1.z *= p2.z;
+    return p1;
+}
+
+Ponto& operator*=(Ponto &p1, const int s)
+{
+    p1.x *= s;
+    p1.y *= s;
+    p1.z *= s;
+    return p1;
+}
+
+Ponto& operator/=(Ponto &p1, const Ponto &p2)
+{
+    p1.x /= p2.x;
+    p1.y /= p2.y;
+    p1.z /= p2.z;
+    return p1;
+}
+
+// Ponto operator+(const Ponto &p1, const Ponto &p2)
+// {
+//     return Ponto(p1.x + p2.x, p1.y + p2.y, p1.z + p2.z);
+// }
+
+// Ponto operator-(const Ponto &p1, const Ponto &p2)
+// {
+//     return Ponto(p1.x - p2.x, p1.y - p2.y, p1.z - p2.z);
+// }
+
+// Ponto operator*(const Ponto &p1, const Ponto &p2)
+// {
+//     return Ponto(p1.x * p2.x, p1.y * p2.y, p1.z * p2.z);
+// }
+
+Ponto Ponto::operator+(const Ponto &p2) const
+{
+    return Ponto(this->x + p2.x, this->y + p2.y, this->z + p2.z);
+}
+
+Ponto Ponto::operator-(const Ponto &p2) const
+{
+    return Ponto(this->x - p2.x, this->y - p2.y, this->z - p2.z);
+}
+
+Ponto Ponto::operator*(const Ponto &p2) const
+{
+    return Ponto(this->x * p2.x, this->y * p2.y, this->z * p2.z);
+}
+
+Ponto Ponto::operator*(float scalar) const
+{
+    return Ponto(this->x * scalar, this->y * scalar, this->z * scalar);
+}
+
+float Ponto::dotProduct(const Ponto* p1, const Ponto* p2)
+{
+    // std::cout << "dotproduct: " << (p1->x * p2->x) + (p1->y * p2->y) + (p1->z * p2->z) <<  "\n";
+    // std::cout << "p1: " << p1->x << "," << p1->y << "," << p1->z << "\n";
+    // std::cout << "p2: " << p2->x << "," << p2->y << "," << p2->z << "\n";
+
+    return ((p1->x * p2->x) + (p1->y * p2->y) + (p1->z * p2->z));
+}
+
+Ponto Ponto::crossProduct(const Ponto* p1, const Ponto* p2)
+{
+
+    float x = (p1->y * p2->z) - (p1->z * p2->y);
+    float y = (p1->z * p2->x) - (p1->x * p2->z);
+    float z = (p1->x * p2->y) - (p1->y * p2->x);
+
+    // std::cout << "crossproduct: " << x << ", " << y << ", " << z <<  "\n";
+
+    return Ponto(x, y, z);
 }
 
 void Ponto::rotacionaX(float angulo)
@@ -57,26 +122,26 @@ void Ponto::rotacionaX(float angulo)
     float anguloRad = angulo * PI/180.0f;
     float xr;
     float yr;
-    m_x = xr;
-    m_y = yr;
+    x = xr;
+    y = yr;
 }
 
 void Ponto::rotacionaY(float angulo)
 {
     float anguloRad = angulo * PI/180.0f;
-    float xr =  m_x*cos(anguloRad) + m_z*sin(anguloRad);
-    float zr = -m_x*sin(anguloRad) + m_z*cos(anguloRad);
-    m_x = xr;
-    m_y = zr;
+    float xr =  x*cos(anguloRad) + z*sin(anguloRad);
+    float zr = -x*sin(anguloRad) + z*cos(anguloRad);
+    x = xr;
+    y = zr;
 }
 
 void Ponto::rotacionaZ(float angulo)
 {
     float anguloRad = angulo * PI/180.0f;
-    float xr = m_x*cos(anguloRad) - m_y*sin(anguloRad);
-    float yr = m_x*sin(anguloRad) + m_y*cos(anguloRad);
-    m_x = xr;
-    m_y = yr;
+    float xr = x*cos(anguloRad) - y*sin(anguloRad);
+    float yr = x*sin(anguloRad) + y*cos(anguloRad);
+    x = xr;
+    y = yr;
 }
 
 /*
@@ -98,15 +163,15 @@ void Ponto::rotacionaZ(float angulo)
 */
 bool Ponto::intersec2d(Ponto k, Ponto l, Ponto m, Ponto n) // TO-DO: É estática?
 {
-    float det = (n.getX() - m.getX()) * (l.getY() - k.getY())  -  (n.getY() - m.getY()) * (l.getX() - k.getX()); // usar getter pra cada valor de eixo?
+    float det = (n.x - m.x) * (l.y - k.y)  -  (n.y - m.y) * (l.x - k.x);
 
     if (det == 0.0f)
     {
         return false; // não há intersecção
     }
 
-    float s = ((n.getX() - m.getX()) * (m.getY() - k.getY()) - (n.getY() - m.getY()) * (m.getX() - k.getX()))/ det;
-    float t = ((l.getX() - k.getX()) * (m.getY() - k.getY()) - (l.getY() - k.getY()) * (m.getX() - k.getX()))/ det;
+    float s = ((n.x - m.x) * (m.y - k.y) - (n.y - m.y) * (m.x - k.x))/ det;
+    float t = ((l.x - k.x) * (m.y - k.y) - (l.y - k.y) * (m.x - k.x))/ det;
 
     return (s >= 0.0f) and (s <= 1.0f) and (t >= 0.0f) and (t <= 1.0f);
 }
