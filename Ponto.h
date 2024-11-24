@@ -12,10 +12,14 @@ public:
     Ponto operator+(const Ponto &p2) const;
     Ponto operator-(const Ponto &p2) const;
     Ponto operator*(const Ponto &p2) const;
+    Ponto operator/(const Ponto &p2) const;
     Ponto operator*(const float scalar) const;
+    Ponto operator/(const float scalar) const;
 
+    static Ponto abs(Ponto p);
     static float dotProduct(const Ponto* p1, const Ponto* p2);
     static Ponto crossProduct(const Ponto* p1, const Ponto* p2);
+    static float fisqrt(Ponto p);
 
     void rotacionaX(float angulo);
     void rotacionaY(float angulo);

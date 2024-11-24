@@ -3,7 +3,7 @@
 
 #include "Ponto.h"
 
-#include "Plane.cpp"
+struct TrianglePlane; // Resolve dependência circular
 
 struct Ray
 {
@@ -16,7 +16,7 @@ struct Ray
     {
     }
 
-    bool b_intersectPlane(Plane plane);
+    bool b_intersectPlane(TrianglePlane plane);
 
     void draw();
 };

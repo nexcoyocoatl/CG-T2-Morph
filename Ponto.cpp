@@ -2,6 +2,7 @@
 #include <cmath>
 
 #include <iostream>
+#include <cmath>
 
 #define PI 3.14159265359
 
@@ -91,12 +92,27 @@ Ponto Ponto::operator*(const Ponto &p2) const
     return Ponto(this->x * p2.x, this->y * p2.y, this->z * p2.z);
 }
 
+Ponto Ponto::operator/(const Ponto &p2) const
+{
+    return Ponto(this->x / p2.x, this->y / p2.y, this->z / p2.z);
+}
+
 Ponto Ponto::operator*(float scalar) const
 {
     return Ponto(this->x * scalar, this->y * scalar, this->z * scalar);
 }
 
-float Ponto::dotProduct(const Ponto* p1, const Ponto* p2)
+Ponto Ponto::operator/(const float scalar) const
+{
+    return Ponto(this->x / scalar, this->y / scalar, this->z / scalar);
+}
+
+Ponto Ponto::abs(Ponto p)
+{
+    return Ponto(std::abs(p.x), std::abs(p.y), std::abs(p.z));
+}
+
+float Ponto::dotProduct(const Ponto *p1, const Ponto *p2)
 {
     // std::cout << "dotproduct: " << (p1->x * p2->x) + (p1->y * p2->y) + (p1->z * p2->z) <<  "\n";
     // std::cout << "p1: " << p1->x << "," << p1->y << "," << p1->z << "\n";
@@ -115,6 +131,27 @@ Ponto Ponto::crossProduct(const Ponto* p1, const Ponto* p2)
     // std::cout << "crossproduct: " << x << ", " << y << ", " << z <<  "\n";
 
     return Ponto(x, y, z);
+}
+
+// Fast Inverse Squareroot do Quake III desenvolvida por id Software (https://www.youtube.com/watch?v=p8u_k2LIZyo)
+float Ponto::fisqrt(Ponto p)
+{
+    float sumofsquared = (p.x * p.x) + (p.y * p.y) + (p.z * p.z);
+    
+    long i;
+    float x2, y;
+    const float threehalfs = 1.5f;
+
+    x2 = sumofsquared * 0.5f;
+    y = sumofsquared;
+
+    i = *(long*) &y;                    // Cast para long para poder fazer manipulação de bits
+    i = 0x5f3759df - (i >> 1);          // Solução algébrica de aproximação da curva de log (1 + x) ≈ 1
+    y = *(float*) &i;                   // Cast de volta para float
+    y = (threehalfs - (x2 * y * y));    // Primeira iteração de aproximação de Newton
+    // y = (threehalfs - (x2 * y * y));    // Segunda iteração de aproximação de Newton (desnecessária)
+
+    return y;
 }
 
 void Ponto::rotacionaX(float angulo)

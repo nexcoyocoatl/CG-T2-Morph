@@ -13,7 +13,7 @@
 
 #include "Objeto3D.h"
 
-#include "Plane.cpp"
+#include "TrianglePlane.h"
 // #include "Ray.h"
 
 #include <fstream>
@@ -88,16 +88,21 @@ std::vector <size_t>* Objeto3D::getFace(size_t iv)
     return &faces[iv];
 }
 
-Plane Objeto3D::getPlaneFromFace(size_t iv)
-{
-    Ponto vec1 = vertices[faces[iv][1]] - vertices[faces[iv][0]];
-    Ponto vec2 = vertices[faces[iv][2]] - vertices[faces[iv][0]];
+// Plane Objeto3D::getPlaneFromFace(size_t iv)
+// {
+//     Ponto v0v1 = vertices[faces[iv][1]] - vertices[faces[iv][0]];
+//     Ponto v0v2 = vertices[faces[iv][2]] - vertices[faces[iv][0]];
     
-    Ponto n = Ponto::crossProduct(&vec1, &vec2);
+//     Ponto n = Ponto::crossProduct(&v0v1, &v0v2);
 
-    float d = -(Ponto::dotProduct(&n, &vertices[faces[iv][0]]));
+//     float d = -(Ponto::dotProduct(&n, &vertices[faces[iv][0]]));
 
-    return Plane(n, d);
+//     return Plane(n, d);
+// }
+
+TrianglePlane Objeto3D::getTrianglePlane(size_t iv)
+{
+    return TrianglePlane(vertices[faces[iv][0]], vertices[faces[iv][1]], vertices[faces[iv][2]]);
 }
 
 void Objeto3D::LoadFile(std::string file)

@@ -2,7 +2,8 @@
 #define OBJETO_3D
 
 #include "Ponto.h"
-#include "Plane.cpp"
+
+#include "TrianglePlane.h"
 
 #include <vector>
 #include <string>
@@ -34,7 +35,8 @@ public:
     Ponto* getVertice(size_t i);
     std::vector <size_t>* getFace(size_t iv);
 
-    Plane getPlaneFromFace(size_t iv);
+    // Plane getPlaneFromFace(size_t iv);
+    TrianglePlane getTrianglePlane(size_t iv);
 
     float getRotationAngle();
     void setRotation(float angle, float x, float y, float z);

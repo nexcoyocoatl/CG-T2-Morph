@@ -16,7 +16,7 @@
 #include "Linha.h"
 #include "Objeto3D.h"
 #include "Ponto.h"
-#include "Plane.cpp"
+#include "TrianglePlane.h"
 #include "Ray.h"
 
 #include "include/GL/freeglut.h"
@@ -221,10 +221,10 @@ void init()
 
         for (size_t j = 0; j < objetos[1]->getNFaces(); j++)
         {
-            if (r.b_intersectPlane(objetos[1]->getPlaneFromFace(j)))
+            if (r.b_intersectPlane(objetos[1]->getTrianglePlane(j)))
             {
                 rays.push_back(r);
-                objetos[0]->getVertice(i)->set(r.end.x, r.end.y, r.end.z);
+                // objetos[0]->getVertice(i)->set(r.end.x, r.end.y, r.end.z);
                 break;
             }
         }

@@ -11,15 +11,17 @@
 #include <GL/glut.h>
 #endif
 
+#include <iostream>
+#include <cmath>
+
 #include "Ray.h"
 #include "Ponto.h"
-#include "Plane.cpp"
-#include <iostream>
+#include "TrianglePlane.h"
 
-bool Ray::b_intersectPlane(Plane plane)
+bool Ray::b_intersectPlane(TrianglePlane plane)
 {
     float denominator = Ponto::dotProduct(&plane.n, &this->direction);
-    if (abs(denominator) <= 1e-4f)
+    if (std::abs(denominator) <= 1e-4f)
     {
         // std::cout << "MENOR QUE ZERO\n";
         length = 0;
@@ -40,11 +42,16 @@ bool Ray::b_intersectPlane(Plane plane)
         return false;
     }
 
-    std::cout << "length " << length << "\n";
+    // std::cout << "length " << length << "\n";
 
     end = origin + (direction * length);
 
-    std::cout << "end " << end.x << "," << end.y << "," << end.z << "\n";
+    // Se chegou aqui, intersecta plano infinito
+    // Agora testa para interseção no triângulo
+    if (!plane.b_intersectTriangle(end))
+    {
+        return false;
+    }
 
     return true;
 }
