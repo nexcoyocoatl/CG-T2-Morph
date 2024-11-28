@@ -25,7 +25,7 @@
 #define MAX_ANIMATION_FRAMES 200 // Número máximo de frames para o morph
 
 std::vector<Objeto3D*> objetos; // arraylist de pointers de objetos
-std::vector<Ray> rays; // arraylist de raios
+std::vector<Ray> rays; // arraylist de raios para raycast
 
 // variáveis para contar o delta time
 // (não é usado na animação de morph por estar limitado ao número de frames)
@@ -89,7 +89,7 @@ void PosicUser()
 
     // Configura a matriz da projeção perspectiva (FOV, proporção da tela, distância do mínimo antes do clipping, distância máxima antes do clipping
     // https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/gluPerspective.xml
-    gluPerspective(60.0f, 4.0/3.0f, 0.01f, 50.0f); // Projecao perspectiva
+    gluPerspective(60.0f, 1.0/1.0f, 0.01f, 50.0f); // Projecao perspectiva
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
@@ -389,7 +389,7 @@ void init()
 int createWindow(const char* title, size_t xPos, size_t yPos, void (*drawFunc)())
 {
     // Especifica o tamnho inicial em pixels da janela GLUT
-    glutInitWindowSize(640, 480);
+    glutInitWindowSize(400, 400);
     // Especifica a posição de início da janela
     glutInitWindowPosition(xPos, yPos);
     // Cria a janela passando o título da mesma como argumento
