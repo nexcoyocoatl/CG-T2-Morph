@@ -51,7 +51,7 @@ bool TrianglePlane::b_intersectTriangle(Ponto p)
 
     // Terceira aresta
     Ponto v0p = p - v0;
-	// Vec3f v0v1 = v1 - v0; // Já definido anteriorment
+	// Ponto v0v1 = v1 - v0; // Já definido anteriormente
     center = Ponto::crossProduct(&v0v1, &v0p);
     if (Ponto::dotProduct(&n, &center) < 0)
     {

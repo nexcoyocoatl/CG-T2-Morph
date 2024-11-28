@@ -28,7 +28,9 @@ bool Ray::b_intersectPlane(TrianglePlane plane)
         return false;
     }
 
-    if (-denominator <= 1e-4f)
+    // Contrário da implementação usual de raycast
+    // Nesse caso, só encontra as faces que estão ao contrário da direção do raio
+    if (-denominator > 1e-4f)
     {
         length = 0;
         return false;

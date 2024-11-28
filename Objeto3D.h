@@ -26,6 +26,9 @@ public:
     Objeto3D();
     Objeto3D(std::string filename);
 
+    Objeto3D(const Objeto3D& other);
+    // Objeto3D& operator=(const Objeto3D& other);
+
     size_t getNFaces();
     size_t getNTris();
     size_t getNQuads();

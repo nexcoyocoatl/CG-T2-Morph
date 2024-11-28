@@ -133,14 +133,14 @@ Ponto Ponto::crossProduct(const Ponto* p1, const Ponto* p2)
     return Ponto(x, y, z);
 }
 
-// Fast Inverse Squareroot do Quake III desenvolvida por id Software (https://www.youtube.com/watch?v=p8u_k2LIZyo)
+// Fast Inverse Squareroot do Quake III desenvolvido pela id Software (https://www.youtube.com/watch?v=p8u_k2LIZyo)
 float Ponto::fisqrt(Ponto p)
 {
     float sumofsquared = (p.x * p.x) + (p.y * p.y) + (p.z * p.z);
     
     long i;
     float x2, y;
-    const float threehalfs = 1.5f;
+    const float threehalves = 1.5f;
 
     x2 = sumofsquared * 0.5f;
     y = sumofsquared;
@@ -148,8 +148,8 @@ float Ponto::fisqrt(Ponto p)
     i = *(long*) &y;                    // Cast para long para poder fazer manipulação de bits
     i = 0x5f3759df - (i >> 1);          // Solução algébrica de aproximação da curva de log (1 + x) ≈ 1
     y = *(float*) &i;                   // Cast de volta para float
-    y = (threehalfs - (x2 * y * y));    // Primeira iteração de aproximação de Newton
-    // y = (threehalfs - (x2 * y * y));    // Segunda iteração de aproximação de Newton (desnecessária)
+    y = (threehalves - (x2 * y * y));    // Primeira iteração de aproximação de Newton
+    // y = (threehalves - (x2 * y * y));    // Segunda iteração de aproximação de Newton (desnecessária)
 
     return y;
 }

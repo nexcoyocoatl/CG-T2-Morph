@@ -33,6 +33,31 @@ Objeto3D::Objeto3D(std::string filename)
     LoadFile(filename);
 }
 
+Objeto3D::Objeto3D(const Objeto3D& other)
+    : vertices {other.vertices}, faces {other.faces}, position {Ponto(0.0f, 0.0f, 0.0f)}
+{
+}
+
+// Objeto3D& Objeto3D::operator=(const Objeto3D& other)
+// {
+//     if (this != &other)
+//     {
+//         for (auto i: this->vertices)
+//         {
+//             other.vertices.push_back(i);
+//         }
+//         other.vertices = vertices;
+//         std::copy(other.vertices.begin(), other.vertices.end(), back_inserter(vertices));
+//         std::copy(other.faces.begin(), other.faces.end(), back_inserter(faces));
+//         std::copy(other.tris.begin(), other.tris.end(), back_inserter(vertices));
+//         std::copy(other.quads.begin(), other.quads.end(), back_inserter(quads));
+//         std::copy(other.ngons.begin(), other.ngons.end(), back_inserter(ngons));
+//         position = Ponto {0.0f, 0.0f, 0.0f};
+//     }
+
+//     return *this;
+// }
+
 float Objeto3D::getRotationAngle()
 {
     return rotation[3];
