@@ -20,6 +20,7 @@
 
 bool Ray::b_intersectPlane(TrianglePlane plane)
 {
+    // Encontra denominador primeiro como guard clause para poupar processamento e também não dividir por zero
     float denominator = Ponto::dotProduct(&plane.n, &this->direction);
     if (std::abs(denominator) <= 1e-4f)
     {
@@ -36,19 +37,20 @@ bool Ray::b_intersectPlane(TrianglePlane plane)
         return false;
     }
 
+    // Encontra a escalar da reta através da combinação algébrica das equações da reta e do plano
     length = -(Ponto::dotProduct(&plane.n, &this->origin) + plane.d) / denominator;
 
+    // Se não está dentro do plano
     if (length <= 1e-4f)
     {
         length = 0;
         return false;
     }
 
-    // std::cout << "length " << length << "\n";
-
+    // Equação da reta para encontrar o ponto exato de intersecção no plano
     end = origin + (direction * length);
 
-    // Se chegou aqui, intersecta plano infinito
+    // Se chegou aqui, existe intersecção com o plano infinito
     // Agora testa para interseção no triângulo
     if (!plane.b_intersectTriangle(end))
     {
@@ -58,6 +60,7 @@ bool Ray::b_intersectPlane(TrianglePlane plane)
     return true;
 }
 
+// Equação de desenho
 void Ray::draw()
 {
     glColor3f(1.0f, 1.0f, 0.0f);

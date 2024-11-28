@@ -5,6 +5,7 @@
 
 struct TrianglePlane; // Resolve dependência circular
 
+// Classe de raio para raycasting
 struct Ray
 {
     Ponto origin;
@@ -16,8 +17,10 @@ struct Ray
     {
     }
 
+    // Acha intersecção no plano (não ainda no triângulo)
     bool b_intersectPlane(TrianglePlane plane);
 
+    // Para ser desenhada como um segmento de linha
     void draw();
 };
 

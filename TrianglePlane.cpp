@@ -3,7 +3,7 @@
 #include "Ponto.h"
 
 TrianglePlane::TrianglePlane(Ponto _v0, Ponto _v1, Ponto _v2)
-{    
+{
     v0 = _v0;
     v1 = _v1;
     v2 = _v2;
@@ -13,19 +13,16 @@ TrianglePlane::TrianglePlane(Ponto _v0, Ponto _v1, Ponto _v2)
     
     n = Ponto::crossProduct(&v0v1, &v0v2);
 
-    // Ponto normalizedN = n/Ponto::abs(n);
-
-    // std::cout << "n: " << n.x << "," << n.y << "," << n.z << " normalizado: " << normalizedN.x << "," << normalizedN.y << "," << normalizedN.z << "\n";
-
+    // Ponto normalizedN = n/Ponto::abs(n); // Normal do triângulo/plano. Não é utilizada porque cálculos levam em consideração o tamanho do vetor
+    
     d = -(Ponto::dotProduct(&n, &v0));
-
-    // std::cout << "d = " << d << "\n";
 }
 
+// Encontra intersecção pelo cálculo de um suposto centro nas coordenadas barimétricas do triângulo
 bool TrianglePlane::b_intersectTriangle(Ponto p)
 {
     Ponto center;
-    float area = Ponto::fisqrt(n) * 2; // Ao invés de sqrt(n)/2, faz 1/sqrt(n)*2 porque o cálculo é muito mais rápido
+    float area = Ponto::fisqrt(n) * 2; // Ao invés de sqrt(n)/2, faz 1/sqrt(n)*2 porque o cálculo é aproximado e supostamente mais rápido
 
     // Cálculo baricêntrico pelos 3 triângulos formados pela face triangular
 

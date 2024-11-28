@@ -22,61 +22,7 @@ void Ponto::set(float _x, float _y, float _z)
     z = _z;
 }
 
-Ponto& operator+=(Ponto &p1, const Ponto &p2)
-{
-    p1.x += p2.x;
-    p1.y += p2.y;
-    p1.z += p2.z;
-    return p1;
-}
-
-Ponto& operator-=(Ponto &p1, const Ponto &p2)
-{
-    p1.x -= p2.x;
-    p1.y -= p2.y;
-    p1.z -= p2.z;
-    return p1;
-}
-
-Ponto& operator*=(Ponto &p1, const Ponto &p2)
-{
-    p1.x *= p2.x;
-    p1.y *= p2.y;
-    p1.z *= p2.z;
-    return p1;
-}
-
-Ponto& operator*=(Ponto &p1, const int s)
-{
-    p1.x *= s;
-    p1.y *= s;
-    p1.z *= s;
-    return p1;
-}
-
-Ponto& operator/=(Ponto &p1, const Ponto &p2)
-{
-    p1.x /= p2.x;
-    p1.y /= p2.y;
-    p1.z /= p2.z;
-    return p1;
-}
-
-// Ponto operator+(const Ponto &p1, const Ponto &p2)
-// {
-//     return Ponto(p1.x + p2.x, p1.y + p2.y, p1.z + p2.z);
-// }
-
-// Ponto operator-(const Ponto &p1, const Ponto &p2)
-// {
-//     return Ponto(p1.x - p2.x, p1.y - p2.y, p1.z - p2.z);
-// }
-
-// Ponto operator*(const Ponto &p1, const Ponto &p2)
-// {
-//     return Ponto(p1.x * p2.x, p1.y * p2.y, p1.z * p2.z);
-// }
-
+// Overload de operadores
 Ponto Ponto::operator+(const Ponto &p2) const
 {
     return Ponto(this->x + p2.x, this->y + p2.y, this->z + p2.z);
@@ -107,6 +53,34 @@ Ponto Ponto::operator/(const float scalar) const
     return Ponto(this->x / scalar, this->y / scalar, this->z / scalar);
 }
 
+bool Ponto::operator==(Ponto const &p2) const
+{
+    if ((this->x == p2.x) && (this->y == p2.y) && (this->z == p2.z))
+    {
+        return true;
+    }
+
+    return false;
+}
+
+Ponto& Ponto::operator+=(const Ponto &p2)
+{
+    this->x += p2.x;
+    this->y += p2.y;
+    this->z += p2.z;
+
+    return *this;
+}
+
+Ponto& Ponto::operator-=(const Ponto &p2)
+{
+    this->x -= p2.x;
+    this->y -= p2.y;
+    this->z -= p2.z;
+
+    return *this;
+}
+
 Ponto Ponto::abs(Ponto p)
 {
     return Ponto(std::abs(p.x), std::abs(p.y), std::abs(p.z));
@@ -114,10 +88,6 @@ Ponto Ponto::abs(Ponto p)
 
 float Ponto::dotProduct(const Ponto *p1, const Ponto *p2)
 {
-    // std::cout << "dotproduct: " << (p1->x * p2->x) + (p1->y * p2->y) + (p1->z * p2->z) <<  "\n";
-    // std::cout << "p1: " << p1->x << "," << p1->y << "," << p1->z << "\n";
-    // std::cout << "p2: " << p2->x << "," << p2->y << "," << p2->z << "\n";
-
     return ((p1->x * p2->x) + (p1->y * p2->y) + (p1->z * p2->z));
 }
 
@@ -128,12 +98,12 @@ Ponto Ponto::crossProduct(const Ponto* p1, const Ponto* p2)
     float y = (p1->z * p2->x) - (p1->x * p2->z);
     float z = (p1->x * p2->y) - (p1->y * p2->x);
 
-    // std::cout << "crossproduct: " << x << ", " << y << ", " << z <<  "\n";
-
     return Ponto(x, y, z);
 }
 
 // Fast Inverse Squareroot do Quake III desenvolvido pela id Software (https://www.youtube.com/watch?v=p8u_k2LIZyo)
+// desnecessária, mas é portável e utilizada por ser uma aproximação e supostamente mais rápida
+// Uso de rsqrtss seria ideal, mas depende do processador e deve ser implementada por chamada por biblioteca
 float Ponto::fisqrt(Ponto p)
 {
     float sumofsquared = (p.x * p.x) + (p.y * p.y) + (p.z * p.z);

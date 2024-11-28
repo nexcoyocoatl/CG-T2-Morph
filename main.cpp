@@ -13,7 +13,6 @@
 #include <GL/glut.h>
 #endif
 
-#include "Linha.h"
 #include "Objeto3D.h"
 #include "Ponto.h"
 #include "TrianglePlane.h"
@@ -23,19 +22,28 @@
 #include <iostream>
 #include <functional>
 
-std::vector<Objeto3D*> objetos;
-std::vector<Ray> rays;
+#define MAX_ANIMATION_FRAMES 200 // Número máximo de frames para o morph
 
+std::vector<Objeto3D*> objetos; // arraylist de pointers de objetos
+std::vector<Ray> rays; // arraylist de raios
+
+// variáveis para contar o delta time
+// (não é usado na animação de morph por estar limitado ao número de frames)
 float t_old {};
 float t {};
 float dt {};
 
+// flags de desenho do objeto
 bool b_meshDraw;
 bool b_wireframeDraw;
 bool b_vertexDraw;
 bool b_centroidDraw;
 bool b_rayDraw;
+
+// flags de animação
 bool b_animate;
+bool b_reverse;
+size_t num_frames;
 
 void DefineLuz()
 {
@@ -92,6 +100,7 @@ void PosicUser()
     gluLookAt(-2.0f, 6.0f, -8.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 }
 
+// não utilizado
 void DesenhaLadrilho()
 {
     glColor3f(0.5f, 0.5f, 0.5f); // desenha QUAD preenchido
@@ -113,6 +122,7 @@ void DesenhaLadrilho()
     glEnd();
 }
 
+// não utilizado
 void DesenhaPiso()
 {
     glPushMatrix();
@@ -132,8 +142,10 @@ void DesenhaPiso()
     glPopMatrix();
 }
 
+// desenho da janela de morph
 void drawMorph()
 {
+    // update do delta time
     t = (float)glutGet(GLUT_ELAPSED_TIME);
     dt = (t - t_old);
     t_old = t;
@@ -145,28 +157,30 @@ void drawMorph()
     glEnable(GL_POLYGON_OFFSET_FILL);
     glPolygonOffset(0.5f, 0.5f);
 
+    // desenha os objetos se as flags estão ligadas
     if (b_meshDraw)
     {
-        objetos[2]->Desenha();
+        objetos[4]->Desenha();
     }
 
     glDisable(GL_POLYGON_OFFSET_FILL);
 
     if (b_wireframeDraw)
     {
-        objetos[2]->DesenhaWireframe();
+        objetos[4]->DesenhaWireframe();
     }
     
     if (b_vertexDraw)
     {
-        objetos[2]->DesenhaVertices();
+        objetos[4]->DesenhaVertices();
     }
 
     if (b_centroidDraw)
     {
-        objetos[2]->DesenhaCentroides();
+        objetos[4]->DesenhaCentroides();
     }
     
+    // desenha os raios se a flag está ligada
     if (b_rayDraw)
     {
         for (size_t i = 0; i < rays.size(); i++)
@@ -177,11 +191,32 @@ void drawMorph()
             }
         }
     }
-    
+
+    // inicia animação se flag está ligada
+    if (b_animate)
+    {
+        b_reverse? (objetos[4]->animate(true), num_frames--) : (objetos[4]->animate(false), num_frames++);
+
+        objetos[4]->RecalculaCentroides();
+
+        if (!b_reverse && (num_frames >= MAX_ANIMATION_FRAMES))
+        {
+            b_animate = false;
+            b_reverse = true;
+        }
+        else if (b_reverse && (num_frames <= 0))
+        {
+            b_animate = false;
+            b_reverse = false;
+        }
+    }
+    // redraw da janela para animar corretamente e não quebrar delta time
+    glutPostRedisplay();
 
     glutSwapBuffers();
 }
 
+// desenho da janela do objeto 1
 void drawObj1()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -219,6 +254,7 @@ void drawObj1()
     glutSwapBuffers();
 }
 
+// desenho da janela do objeto 2
 void drawObj2()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -258,11 +294,15 @@ void teclado(unsigned char key, int x, int y)
     switch (key)
     {
         case 'r':
-            objetos[2]->setRotation(objetos[2]->getRotationAngle() + (0.1f * dt), 0.0f, 0.0f, 1.0f);
+            objetos[4]->setRotation(objetos[4]->getRotationAngle() + (0.5f * dt), 0.0f, 0.0f, 1.0f);
             break;
 
         case ' ':
             b_animate = b_animate? false : true;
+            break;
+
+        case 'i':
+            b_reverse = b_reverse? false : true;
             break;
 
         case '1':
@@ -280,11 +320,16 @@ void teclado(unsigned char key, int x, int y)
         case '5':
             b_rayDraw = b_rayDraw? false : true;
             break;
+        
+        case 27: // Escape
+            exit(0);
+            break;
     }
 
     glutPostRedisplay();
 }
 
+// Função init apenas para as janelas
 void initWindow()
 {
     glClearColor(0.5f, 0.5f, 0.9f, 1.0f);
@@ -299,6 +344,7 @@ void initWindow()
     PosicUser();
 }
 
+// Função init para construção das estruturas de dados dos objetos e inicialização de outras variáveis
 void init()
 {
     b_meshDraw = true;
@@ -307,24 +353,21 @@ void init()
     b_centroidDraw = false;
     b_rayDraw = false;
     b_animate = false;
+    b_reverse = false;
+    num_frames = 0;
 
+    // Adiciona objetos
     objetos.emplace_back(new Objeto3D("models/hard3.obj"));
-    objetos.emplace_back(new Objeto3D("models/easy2.obj"));
-    // objetos[0]->LoadFile("dude.obj");
-    // objetos[0]->LoadFile("solids.obj");
-    // objetos[0]->LoadFile("planes.obj");
-    // objetos[0]->LoadFile("concavo.obj");
-    // objetos[0]->LoadFile("hexadecagon.obj");
+    objetos.emplace_back(new Objeto3D("models/hard1.obj"));
 
-    // objetos.emplace_back(new Objeto3D("models/hard3.obj"));
-    objetos.emplace_back(new Objeto3D(*objetos[0])); // objetos[2] será o inicial do morph
-    objetos.emplace_back(new Objeto3D(*objetos[0])); // objetos[3] será o final do morph
+    // Faz deep copies do objeto 0
+    objetos.emplace_back(new Objeto3D(*objetos[0])); // objetos[2] será o inicial do morph, não é desenhado
+    objetos.emplace_back(new Objeto3D(*objetos[0])); // objetos[3] será o final do morph, não é desenhado
+    objetos.emplace_back(new Objeto3D(*objetos[0])); // objetos[4] será o objeto desenhado na tela de animação do morph
 
-    // std::cout << objetos[0]->getNVertices() << "\n";
-
-    for (size_t i = 0; i < objetos[2]->getNVertices(); i++)
+    for (size_t i = 0; i < objetos[3]->getNVertices(); i++)
     {
-        Ponto v = *objetos[2]->getVertice(i);
+        Ponto v = *objetos[3]->getVertice(i);
         Ray r = Ray(v);
 
         for (size_t j = 0; j < objetos[1]->getNFaces(); j++)
@@ -332,51 +375,17 @@ void init()
             if (r.b_intersectPlane(objetos[1]->getTrianglePlane(j)))
             {
                 rays.push_back(r);
-                objetos[2]->getVertice(i)->set(r.end.x, r.end.y, r.end.z);
+                objetos[3]->getVertice(i)->set(r.end.x, r.end.y, r.end.z);
                 break;
             }
         }
     }
-    objetos[2]->RecalculaCentroides();
+    objetos[3]->RecalculaCentroides();
 
-    // std::cout << "rays size: " << rays.size() << "\n";
+    objetos[4]->findAnimationIncrement(objetos[3], MAX_ANIMATION_FRAMES);
 }
 
-void TranslationToObjInFrames(Objeto3D posInicial, Objeto3D posFinal, float dt)
-{
-    // Não trabalha com ngons
-    if (posInicial.getNNgons()> 0 || posFinal.getNNgons() > 0)
-    {
-        std::cout << "ngons\n";
-        return;
-    }
-
-    if (posInicial.getNFaces() != posFinal.getNFaces() ||
-        (posInicial.getNTris() != posFinal.getNTris() || posInicial.getNQuads() != posFinal.getNQuads()))
-    {
-        std::cout << "different faces\n";
-        return;
-    }
-
-    for (size_t i = 0; i < posInicial.getNFaces(); i++)
-    {
-
-    }
-
-    // if (inicioFrames != nFrames)
-    // {
-    //     for (size_t i = 0; i < posInicial.getNVertices(); i++)
-    //     {
-    //         Ponto* vInicial = posInicial.getVertice(i);
-    //         Ponto* vFinal = posFinal.getVertice(i);
-
-    //         size_t x = (vFinal->getX() - );
-            
-    //         vInicial.set();
-    //     }
-    // }
-}
-
+// Função para criação de uma janela independente
 int createWindow(const char* title, size_t xPos, size_t yPos, void (*drawFunc)())
 {
     // Especifica o tamnho inicial em pixels da janela GLUT
@@ -398,6 +407,7 @@ int main(int argc, char **argv)
 {
     glutInit(&argc, argv);
 
+    // Cria 3 janelas
     createWindow("T2 Objeto 1", 50, 25, &drawObj1);
     createWindow("T2 Objeto 2", 700, 25, &drawObj2);
     createWindow("T2 Morph", 350, 500, &drawMorph);
@@ -414,6 +424,7 @@ int main(int argc, char **argv)
     // Inicia o processamento e aguarda interacoes do usuario
     glutMainLoop();
 
+    // Limpa os pointers dos objetos quando fecha as janelas (mas não quando pressiona ESC)
     if (!objetos.empty())
     {
         for (Objeto3D* o : objetos)

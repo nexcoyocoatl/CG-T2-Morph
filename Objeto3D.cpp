@@ -14,7 +14,6 @@
 #include "Objeto3D.h"
 
 #include "TrianglePlane.h"
-// #include "Ray.h"
 
 #include <fstream>
 #include <algorithm>
@@ -22,41 +21,22 @@
 // teste
 #include <iostream>
 
+// Construtores
 Objeto3D::Objeto3D()
     : vertices {}, faces {}, position {Ponto(0.0f, 0.0f, 0.0f)}
 {
 }
-
 Objeto3D::Objeto3D(std::string filename)
     : vertices {}, faces {}, position {Ponto(0.0f, 0.0f, 0.0f)}
 {
     LoadFile(filename);
 }
 
+// Deep copy
 Objeto3D::Objeto3D(const Objeto3D& other)
-    : vertices {other.vertices}, faces {other.faces}, position {Ponto(0.0f, 0.0f, 0.0f)}
+    : vertices {other.vertices}, faces {other.faces}, position {Ponto(0.0f, 0.0f, 0.0f)}, centroides {other.centroides}
 {
 }
-
-// Objeto3D& Objeto3D::operator=(const Objeto3D& other)
-// {
-//     if (this != &other)
-//     {
-//         for (auto i: this->vertices)
-//         {
-//             other.vertices.push_back(i);
-//         }
-//         other.vertices = vertices;
-//         std::copy(other.vertices.begin(), other.vertices.end(), back_inserter(vertices));
-//         std::copy(other.faces.begin(), other.faces.end(), back_inserter(faces));
-//         std::copy(other.tris.begin(), other.tris.end(), back_inserter(vertices));
-//         std::copy(other.quads.begin(), other.quads.end(), back_inserter(quads));
-//         std::copy(other.ngons.begin(), other.ngons.end(), back_inserter(ngons));
-//         position = Ponto {0.0f, 0.0f, 0.0f};
-//     }
-
-//     return *this;
-// }
 
 float Objeto3D::getRotationAngle()
 {
@@ -71,11 +51,13 @@ void Objeto3D::setRotation(float angle, float x, float y, float z)
     rotation[2] = z;
 }
 
+// Retorna número de faces
 size_t Objeto3D::getNFaces()
 {
     return faces.size();
 }
 
+// Retorna número de faces específicas (tris, quads, ngons)
 size_t Objeto3D::getNTris()
 {
     return tris.size();
@@ -96,35 +78,19 @@ size_t Objeto3D::getNVertices()
     return vertices.size();
 }
 
+// Retorna pointer para vértice específico por index
 Ponto* Objeto3D::getVertice(size_t i)
 {
     return &vertices[i];
 }
 
-// std::vector <size_t> Objeto3D::getFace(size_t iv)
-// {
-//     std::vector <size_t> temp;
-//     copy(faces[iv].begin(), faces[iv].end(), back_inserter(temp));
-//     return temp;
-// }
-
+// Retorna face específica por index
 std::vector <size_t>* Objeto3D::getFace(size_t iv)
 {
     return &faces[iv];
 }
 
-// Plane Objeto3D::getPlaneFromFace(size_t iv)
-// {
-//     Ponto v0v1 = vertices[faces[iv][1]] - vertices[faces[iv][0]];
-//     Ponto v0v2 = vertices[faces[iv][2]] - vertices[faces[iv][0]];
-    
-//     Ponto n = Ponto::crossProduct(&v0v1, &v0v2);
-
-//     float d = -(Ponto::dotProduct(&n, &vertices[faces[iv][0]]));
-
-//     return Plane(n, d);
-// }
-
+// Retorna um plano baseado em um triângulo que contém sua equação geral
 TrianglePlane Objeto3D::getTrianglePlane(size_t iv)
 {
     return TrianglePlane(vertices[faces[iv][0]], vertices[faces[iv][1]], vertices[faces[iv][2]]);
@@ -202,28 +168,9 @@ void Objeto3D::LoadFile(std::string file)
         values.clear();
     }
     f.close();
-
-    std::cout << "Tris: " << tris.size() << " Quads: " << quads.size() << " Ngons: " << ngons.size() << "\n";
-
-    // testes
-    // TriangulaMesh();
-    // TriangulaMesh();
-    // SubdivideMesh(1);
-    // TriangulaMesh();
-    // SubdivideMesh(1);
-    // TriangulaMesh();
-    SubdivideMesh(1);
+    
+    // SubdivideMesh(1); // Subdivide em quads. Não é mais utilizado.
     TriangulaMesh();
-
-    // Para teste dos planos
-    // TriangulaFace(0);
-    // TriangulaFace(1);
-    // TriangulaFace(2);
-
-    // Subdivide em
-    // SubdivideFaceEm(0, 8); // Octagono
-    // SubdivideFaceEm(1, 16); // Hexadecagono
-    // SubdivideFaceEm(2, 5); // Pentagono
 }
 
 void Objeto3D::DesenhaVertices()
@@ -286,6 +233,7 @@ void Objeto3D::Desenha()
     glPopMatrix();
 }
 
+// Cálculo de centroide de uma face por seu index
 Ponto Objeto3D::CalculaCentroide(size_t faceIndex)
 {
     float n = static_cast<float>(faces[faceIndex].size());
@@ -318,7 +266,7 @@ void Objeto3D::RecalculaCentroides()
     }
 }
 
-// Faz o desenho dos centroides de cada face no formato de um um vertice
+// Faz o desenho dos centroides de cada face como se fossem vértices
 void Objeto3D::DesenhaCentroides()
 {
     glPushMatrix();
@@ -335,12 +283,6 @@ void Objeto3D::DesenhaCentroides()
     glEnd();  
 
     glPopMatrix();
-}
-
-// WIP: Não sei se vou fazer
-void Objeto3D::SimplifyGeometry()
-{
-
 }
 
 // Divide determinadas vezes (funciona, mas dá bug no draw, por alguma razão, como se fizesse TRIANGLE_FAN)
@@ -388,11 +330,13 @@ void Objeto3D::SubdivideFaceEm(size_t faceIndex, size_t times)
 
     centroides[faceIndex] = CalculaCentroide(faceIndex);
 
+    // Se era um quad, retorna
     if (num_vertices == 4)
     {
         return;
     }
 
+    // Se deixou de ser um triângulo ou um ngon, remove da lista respective e adiciona aos quads
     if (num_vertices > 4)
     {
         ngons.erase(std::remove(ngons.begin(), ngons.end(), faceIndex), ngons.end());
@@ -451,6 +395,7 @@ void Objeto3D::TriangulaQuad(size_t faceIndex)
     quads.erase(std::remove(quads.begin(), quads.end(), faceIndex), quads.end()); // Apaga face do vetor de quads (precisa ser assim porque usa iterator)
 }
 
+// Triângula qualquer face que já não seja um triângulo
 void Objeto3D::TriangulaFace(size_t faceIndex)
 {
     size_t num_vertices = faces[faceIndex].size();
@@ -524,68 +469,42 @@ void Objeto3D::TriangulaMesh()
     }
 }
 
-// Subdivide até chegar exatamente no número de faces determinado
-void Objeto3D::SubdivideUntil(size_t num_faces)
+// Cálcula os vértices incrementais para serem somados por frame para fazer a animação
+void Objeto3D::findAnimationIncrement(Objeto3D *obj2, size_t n_frames)
 {
-    if (faces.size() > num_faces)
+    if (!animationIncrement.empty())
+    {
+        animationIncrement.clear();
+    }
+
+    for (size_t i = 0; i < this->getNVertices(); i++)
+    {
+        animationIncrement.emplace_back(((*obj2->getVertice(i) - this->vertices[i])/(float)n_frames));
+    }
+}
+
+// Função de animação (necessita ter o pré-calculo dos incrementos)
+void Objeto3D::animate(bool reverse)
+{
+    // Se não tem os incrementos, retorna
+    if (animationIncrement.empty())
     {
         return;
     }
 
-    if (ngons.size() > 0)
+    // Animação reversa ou não
+    if (!reverse)
     {
-        size_t ngons_verts = 0;
-
-        for (size_t ngon : ngons)
+        for (size_t i = 0; i < vertices.size(); i++)
         {
-            ngons_verts += faces[ngon].size();
+            vertices[i] += animationIncrement[i];
         }
-
-    
-        // if (ngons_verts * )
     }
-
-    // while (faces.size())
-}
-
-
-
-void Objeto3D::teste()
-{
-    std::cout << "Tris: " << tris.size() << " Quads: " << quads.size() << " Ngons: " << ngons.size() << "\n";
-    std::cout << "Faces size: " << faces.size() << " Centroides: " << centroides.size() << "\n";
-
-    // size_t n_tris = 0;
-    // size_t n_quads = 0;
-    // size_t n_ngons = 0;
-    // size_t n_wtf = 0;
-
-    // for (size_t i = 0; i < faces.size(); i++)
-    // {
-    //     if (faces[i].size() == 3)
-    //     {
-    //         n_tris++;
-    //     }
-    //     else if (faces[i].size() == 4)
-    //     {
-    //         n_quads++;
-    //     }
-    //     else if (faces[i].size() > 4)
-    //     {
-    //         n_ngons++;
-    //     }
-    //     else
-    //     {
-    //         n_wtf++;
-    //     }
-    // }
-
-    // std::cout << "Tris: " << n_tris << " Quads: " << n_quads << " Ngons: " << n_ngons << " wtf?!: " << n_wtf << "\n";
-    
-
-    // for (size_t i = 0; i < tris.size(); i++)
-    // {
-    //     std::cout << tris[i] << ", ";
-    // }
-    // std::cout << "\n";    
+    else
+    {
+        for (size_t i = 0; i < vertices.size(); i++)
+        {
+            vertices[i] -= animationIncrement[i];
+        }
+    }
 }

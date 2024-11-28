@@ -14,6 +14,7 @@ private:
     std::vector<Ponto> vertices;
     std::vector<std::vector <size_t>> faces;
     std::vector<Ponto> centroides;
+    std::vector<Ponto> animationIncrement;
 
     std::vector<size_t> quads;
     std::vector<size_t> tris;
@@ -52,17 +53,15 @@ public:
     void RecalculaCentroides();
     void DesenhaCentroides();
 
-    void SimplifyGeometry();
-
     void SubdivideFaceEm(size_t faceIndex, size_t times);
     void SubdivideFace(size_t faceIndex);
     void SubdivideMesh(size_t n_times);
     void TriangulaQuad(size_t faceIndex);
     void TriangulaFace(size_t faceIndex);
     void TriangulaMesh();
-    void SubdivideUntil(size_t num_faces);
 
-    void teste();
+    void findAnimationIncrement(Objeto3D *obj2, size_t n_frames);
+    void animate(bool reverse);
 };
 
 #endif
